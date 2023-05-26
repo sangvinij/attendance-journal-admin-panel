@@ -1,0 +1,13 @@
+[flake8]
+ignore = S101,B101,W503,Q000
+max-line-length = 120
+max_cognitive_complexity = 12
+exclude =
+    .artifacts
+    .git
+    .idea
+    .local
+    .venv
+    .vscode
+    */migrations/*
+    project/manage.py
