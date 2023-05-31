@@ -123,20 +123,13 @@ AUTH_USER_MODEL = "accounts.User"
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": ("rest_framework.authentication.TokenAuthentication",),
-    'DEFAULT_RENDERER_CLASSES': ( 'rest_framework.renderers.JSONRenderer', ),
+    "DEFAULT_RENDERER_CLASSES": ( "rest_framework.renderers.JSONRenderer", ),
 }
-
-EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS")
-EMAIL_USE_SSL = os.getenv("EMAIL_USE_SSL")
-EMAIL_BACKEND = os.getenv("EMAIL_BACKEND")
-EMAIL_HOST = os.getenv("EMAIL_HOST")
-EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
-EMAIL_PORT = os.getenv("EMAIL_PORT")
 
 DJOSER = {
     "SERIALIZERS": {
         "user_create": "accounts.serializers.CreateUserSerializer",
+        "token_create": "accounts.serializers.CustomTokenCreateSerializer",
     },
     "TOKEN_MODEL": "rest_framework.authtoken.models.Token",
     "PASSWORD_RESET_CONFIRM_URL": "#/password/reset/confirm/{uid}/{token}",
