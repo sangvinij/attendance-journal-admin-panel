@@ -1,5 +1,10 @@
 # CRM Backend
 
+## Software versions
+
+python:3.11.3
+PIP_VERSION:23.1.2
+POETRY_VERSION:1.4.2
 
 ## Getting started
 
