@@ -1,22 +1,61 @@
-from djoser.serializers import UserCreateSerializer, TokenCreateSerializer
+from axes.models import AccessAttempt
 
-from .models import User
+from django.contrib.auth import authenticate
 
-from rest_framework import serializers
+from djoser.serializers import UserCreateSerializer, UserSerializer
+
+from rest_framework import exceptions, serializers
+
+from .models import StudyField, User
 
 
 class CreateUserSerializer(UserCreateSerializer):
     class Meta:
         model = User
-        fields = ("username", "password", "first_name", "last_name")
+        fields = ("username", "password", "first_name", "last_name", "is_superuser", "is_metodist", "is_teacher")
 
 
-class CustomTokenCreateSerializer(TokenCreateSerializer):
-    default_error_messages = {
-        "invalid_credentials": "Неверное имя пользователя и/или пароль",
-    }
+class StudyFieldSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StudyField
+        fields = ["study_field"]
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields["username"] = serializers.CharField(trim_whitespace=False)
-        self.fields["password"] = serializers.CharField(trim_whitespace=False)
+
+class AuthSerializer(serializers.Serializer):
+    default_error_messages = {"no_active_account": "Неверное имя пользователя и/или пароль"}
+    username = serializers.CharField(trim_whitespace=False)
+    password = serializers.CharField(style={"input_type": "password"}, trim_whitespace=False)
+
+    def validate(self, attrs):
+        username = attrs.get("username")
+        password = attrs.get("password")
+
+        user = authenticate(request=self.context.get("request"), username=username, password=password)
+
+        if not user:
+            msg = self.default_error_messages["no_active_account"]
+            raise exceptions.AuthenticationFailed(detail=msg, code="authentication")
+
+        AccessAttempt.objects.filter(username=username).delete()
+        attrs["user"] = user
+        return attrs
+
+
+class CustomUserSerializer(UserSerializer):
+    study_fields = StudyFieldSerializer(many=True, read_only=True)
+
+    class Meta(UserSerializer.Meta):
+        fields = (
+            "id",
+            "first_name",
+            "last_name",
+            "middle_name",
+            "is_active",
+            "is_staff",
+            "is_superuser",
+            "is_teacher",
+            "is_metodist",
+            "study_fields",
+            "date_added",
+            "last_update",
+        )

@@ -10,9 +10,9 @@ class PassValidator:
     def validate(self, password, user=None):
         if not self.password_regex.fullmatch(password):
             raise ValidationError(
-                _("Минимум 5 символов, 1 латинская буква и 1 цифра"),
+                _("Минимум 5 символов, 1 строчная латинская буква и 1 цифра"),
                 code="wrong password",
             )
 
     def get_help_text(self):
-        return _("Пароль должен содержать минимум 5 символов, 1 латинскую букву и 1 цифру")
+        return _("Пароль должен содержать минимум 5 символов, 1 строчную латинскую букву и 1 цифру")
