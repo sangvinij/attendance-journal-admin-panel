@@ -1,14 +1,22 @@
-from django.urls import include, path, re_path
+from django.urls import include, path
+
+from knox import views as knox_views
 
 from rest_framework.routers import DefaultRouter
 
-from accounts.views import CustomTokenCreateView
+from .views import LoginView, StudyFieldViewSet, UserViewSet
 
 router = DefaultRouter()
+
+users_router = DefaultRouter()
+users_router.register("list", UserViewSet)
+users_router.register("study_fields", StudyFieldViewSet)
 
 urlpatterns = [
     path(r"", include(router.urls)),
     path(r"auth/", include("djoser.urls")),
-    path("auth/token/login/", CustomTokenCreateView.as_view(), name="token_obtain_pair"),
-    re_path(r"auth/", include("djoser.urls.authtoken")),
+    path(r"auth/token/login/", LoginView.as_view(), name="knox_login"),
+    path(r"auth/token/logout/", knox_views.LogoutView.as_view(), name="knox_logout"),
+    path(r"auth/token/logoutall/", knox_views.LogoutAllView.as_view(), name="knox_logoutall"),
+    path(r"api/users/", include(users_router.urls)),
 ]

@@ -32,10 +32,13 @@ Open your web browser and go to `http://localhost:8000/admin/`. Log in with the 
 
 The project provides the following endpoints:
 
+- swagger/ - info by endpoints
 - auth/users/ - endpoint for creating a new user.
 - auth/users/me/ - endpoint for getting information about the current user.
-- auth/token/login/ - endpoint for getting an authentication token.
-- auth/token/logout/ - endpoint for logging out.
+- auth/token/login/ - endpoint for getting token.
+- auth/token/logout/ - endpoint for deleting token.
+- auth/token/logoutall/ - endpoint for deleting all users's tokens. 
+- api/users/list/ - get list of users
 
 To use these endpoints, follow these steps:
 
@@ -49,7 +52,7 @@ To use these endpoints, follow these steps:
 ```
 
 
-2. Get an authentication token by sending a POST request to the `auth/token/login/` endpoint. In the request body, include the following data:
+2. Get a pair of tokens by sending a POST request to the `auth/token/login/` endpoint. In the request body, include the following data:
 
 ```
 {
@@ -59,14 +62,18 @@ To use these endpoints, follow these steps:
 ```
 
 
-3. Use the token to access protected endpoints. To do this, add an `Authorization` header with the value `Token your_token` to each request.
+3. Use an access token to access protected endpoints. To do this, add an `Authorization` header with the value `Token <token>` to each request.
 For example:
 
-    `curl -H "Authorization: Token <your-token>" http://localhost:8000/auth/users/me/`
+    `curl -H "Authorization: Token <token>" http://localhost:8000/auth/users/me/`
 
 4. Get information about the current user by sending a GET request to the `auth/users/me/` endpoint with the user's token in the Authorization header like in the example above.
 
-5. Delete a user's token by sending a POST request to the `auth/token/logout/` endpoint with the user's token in the Authorization header.
+5. Get list of all the users by sending a GET request to the `api/users/list/` with the admin's token.
+
+6. Delete your token by sending a POST request to the `auth/token/logout/` endpoint with the user's token in the Authorization header.
+
+7. Delete all user's tokens by sending a POST request to the `auth/token/logoutall/` endpoint with the user's refresh token in the Authorization header.
 
 
 ## Database administration
@@ -82,6 +89,6 @@ To administer the database, you can use pgAdmin, which runs in a separate contai
 ## HOW run test
 After start server, put next command in console:
 
-`docker exec -it iteen.webapp bash run-test.sh`
+`poetry run pytest . -s`
 
-If you got in logs "OK" and "TEST PASS! CONGRATULATION!!!", then tests were passed.
+If you do not have any errors, then the tests are passed.

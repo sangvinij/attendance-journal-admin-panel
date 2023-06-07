@@ -1,17 +1,10 @@
 #!/bin/bash
 
-cleanup() {
-    echo 'Cleaning up...'
-    python project/manage.py shell -c "from accounts.models import User; u = User.objects.filter(username='test_username2'); u.delete()"
-}
+echo 'Wait...'
+sleep 25s
 
-echo 'Run unit-tests...'
-python project/manage.py test accounts
-$ echo $?
-
-echo 'Run test to DB, create test user'
+echo 'Run Pytest'
 pytest . -s
-$ echo $?
+if [[ $? == 1 ]]; then exit 1; fi
 
 echo 'Succesful!!!'
-trap cleanup EXIT

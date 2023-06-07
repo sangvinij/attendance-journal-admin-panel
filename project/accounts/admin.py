@@ -1,16 +1,25 @@
+from axes.models import AccessAttempt
+
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
 from .forms import UserChangeForm, UserCreationForm
-from .models import User
-
-from axes.models import AccessAttempt
+from .models import StudyField, User
 
 
 class CustomUserAdmin(BaseUserAdmin):
     form = UserChangeForm
     add_form = UserCreationForm
-    list_display = ("id", "first_name", "last_name", "username", "is_blocked")
+    list_display = (
+        "id",
+        "username",
+        "first_name",
+        "last_name",
+        "middle_name",
+        "is_blocked",
+        "date_added",
+        "last_update",
+    )
     list_filter = ("username", "first_name", "last_name")
     actions = ["unblock_users"]
 
@@ -20,11 +29,21 @@ class CustomUserAdmin(BaseUserAdmin):
             None,
             {
                 "classes": ("wide",),
-                "fields": ("username", "password"),
+                "fields": (
+                    "username",
+                    "password",
+                    "first_name",
+                    "last_name",
+                    "middle_name",
+                    "study_fields",
+                    "is_superuser",
+                    "is_metodist",
+                    "is_teacher",
+                ),
             },
         ),
     )
-    filter_horizontal = ()
+    filter_horizontal = ("study_fields",)
 
     def is_blocked(self, obj):
         attempt = AccessAttempt.objects.filter(username=obj.username).first()
@@ -42,3 +61,4 @@ class CustomUserAdmin(BaseUserAdmin):
 
 
 admin.site.register(User, CustomUserAdmin)
+admin.site.register(StudyField)

@@ -1,8 +1,14 @@
 import os
+from datetime import timedelta
+
 import dj_database_url
 from pathlib import Path
+
+import dj_database_url
+
 from dotenv import find_dotenv, load_dotenv
 
+from rest_framework.settings import api_settings
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -26,11 +32,14 @@ DJANGO_APPS = [
 PROJECT_APPS = ["accounts.apps.AccountsConfig"]
 
 OTHER_APPS = [
-    "rest_framework",
-    "rest_framework.authtoken",
-    "djoser",
     "axes",
+    'knox',
+    "djoser",
+    'drf_yasg',
+    "rest_framework",
 ]
+
+INSTALLED_APPS = DJANGO_APPS + PROJECT_APPS + OTHER_APPS
 
 AUTHENTICATION_BACKENDS = [
     "axes.backends.AxesStandaloneBackend",
@@ -46,9 +55,6 @@ AXES_SUPERUSER_CHECK_FORM_FIELD = ["is_superuser"]
 AXES_COOLOFF_TIME = None
 AXES_USER_USER_AGENT = False
 AXES_BEHIND_REVERSE_PROXY = False
-
-
-INSTALLED_APPS = DJANGO_APPS + PROJECT_APPS + OTHER_APPS
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -122,15 +128,38 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 AUTH_USER_MODEL = "accounts.User"
 
 REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": ("rest_framework.authentication.TokenAuthentication",),
-    "DEFAULT_RENDERER_CLASSES": ( "rest_framework.renderers.JSONRenderer", ),
+    "DEFAULT_AUTHENTICATION_CLASSES": ("knox.auth.TokenAuthentication",),
+    "DEFAULT_RENDERER_CLASSES": ("rest_framework.renderers.JSONRenderer",),
 }
 
 DJOSER = {
     "SERIALIZERS": {
         "user_create": "accounts.serializers.CreateUserSerializer",
-        "token_create": "accounts.serializers.CustomTokenCreateSerializer",
+        "user": "accounts.serializers.CustomUserSerializer",
     },
-    "TOKEN_MODEL": "rest_framework.authtoken.models.Token",
     "PASSWORD_RESET_CONFIRM_URL": "#/password/reset/confirm/{uid}/{token}",
+}
+
+REST_KNOX = {
+    "SECURE_HASH_ALGORITHM": "cryptography.hazmat.primitives.hashes.SHA512",
+    "AUTH_TOKEN_CHARACTER_LENGTH": 64,
+    "TOKEN_TTL": timedelta(hours=24),
+    "USER_SERIALIZER": "knox.serializers.UserSerializer",
+    "TOKEN_LIMIT_PER_USER": None,
+    "AUTO_REFRESH": False,
+    "MIN_REFRESH_INTERVAL": 60,
+    "AUTH_HEADER_PREFIX": "Token",
+    "EXPIRY_DATETIME_FORMAT": api_settings.DATETIME_FORMAT,
+    "TOKEN_MODEL": "knox.AuthToken",
+}
+
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'Bearer': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header'
+        },
+    },
+    'LOGIN_URL': '/auth/users/',
 }
