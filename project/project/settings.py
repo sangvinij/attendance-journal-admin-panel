@@ -136,6 +136,7 @@ DJOSER = {
     "SERIALIZERS": {
         "user_create": "accounts.serializers.CreateUserSerializer",
         "user": "accounts.serializers.CustomUserSerializer",
+        "current_user": "accounts.serializers.CustomUserSerializer"
     },
     "PASSWORD_RESET_CONFIRM_URL": "#/password/reset/confirm/{uid}/{token}",
 }

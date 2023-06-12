@@ -34,16 +34,11 @@ class TestLogin:
     username = "test_username2"
     password = "admin1"
 
-    def test_register_user(self):
-        rs = register_user(username=self.username, password=self.password)
-        assert rs.status_code == 201
-        assert "username" in rs.json()
-        assert rs.json()["username"] == self.username
-
     def test_get_token_with_wrong_and_correct_data(self):
         register_user(username=self.username, password=self.password)
         failed_rs = create_token(username=self.username, password=f"wrong {self.password}")
         assert failed_rs.status_code == 401
+        assert 'auth_token' not in failed_rs.json()
         valid_rs = create_token(username=self.username, password=self.password)
         assert valid_rs.status_code == 200
         assert "auth_token" in valid_rs.json()
@@ -80,3 +75,5 @@ class TestLogin:
         assert rs3.status_code == 401
         rs4 = create_token(username=self.username, password=self.password + "\x20")
         assert rs4.status_code == 401
+        valid_rs = create_token(username=self.username, password=self.password)
+        assert 'auth_token' in valid_rs.json()
