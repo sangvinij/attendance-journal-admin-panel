@@ -20,7 +20,7 @@ class CustomUserAdmin(BaseUserAdmin):
         "date_added",
         "last_update",
     )
-    list_filter = ("username", "first_name", "last_name")
+    list_filter = ("is_superuser", "is_metodist", "is_teacher")
     actions = ["unblock_users"]
 
     fieldsets = ()
@@ -44,6 +44,7 @@ class CustomUserAdmin(BaseUserAdmin):
         ),
     )
     filter_horizontal = ("study_fields",)
+    search_fields = ("username", )
 
     def is_blocked(self, obj):
         attempt = AccessAttempt.objects.filter(username=obj.username).first()

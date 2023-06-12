@@ -47,6 +47,7 @@ class CustomUserSerializer(UserSerializer):
     class Meta(UserSerializer.Meta):
         fields = (
             "id",
+            "username",
             "first_name",
             "last_name",
             "middle_name",
