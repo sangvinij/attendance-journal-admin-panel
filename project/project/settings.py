@@ -1,7 +1,6 @@
 import os
 from datetime import timedelta
 
-import dj_database_url
 from pathlib import Path
 
 import dj_database_url
@@ -35,7 +34,7 @@ OTHER_APPS = [
     "axes",
     'knox',
     "djoser",
-    'drf_yasg',
+    'drf_spectacular',
     "rest_framework",
 ]
 
@@ -130,6 +129,7 @@ AUTH_USER_MODEL = "accounts.User"
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": ("knox.auth.TokenAuthentication",),
     "DEFAULT_RENDERER_CLASSES": ("rest_framework.renderers.JSONRenderer",),
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
 DJOSER = {
@@ -154,13 +154,15 @@ REST_KNOX = {
     "TOKEN_MODEL": "knox.AuthToken",
 }
 
-SWAGGER_SETTINGS = {
-    'SECURITY_DEFINITIONS': {
-        'Bearer': {
-            'type': 'apiKey',
-            'name': 'Authorization',
-            'in': 'header'
-        },
-    },
-    'LOGIN_URL': '/auth/users/',
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Backend CRM',
+    'DESCRIPTION': f'''ИНФОРМАЦИЯ ПО ПРОЕКТУ
+    \nВремя жизни токена: {REST_KNOX['TOKEN_TTL']}
+    \nФормат токена в header:
+    \n\tAuthorization: Token <token>
+    ''',
+
+    'VERSION': '1.2.2',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'PREPROCESSING_HOOKS': ["project.scheme.custom_preprocessing_hook"]
 }

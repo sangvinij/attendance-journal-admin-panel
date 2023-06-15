@@ -1,14 +1,11 @@
 from django.db.models import Case, Min, OuterRef, Q, Subquery, When
 from django.utils import timezone
-from django.utils.decorators import method_decorator
 
-from drf_yasg.utils import swagger_auto_schema
-from drf_yasg import openapi
+from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter
 
 from knox.models import AuthToken
 from knox.views import LoginView as KnoxLoginView
 
-from rest_framework.decorators import action
 from rest_framework import filters, permissions, status, viewsets
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
@@ -19,14 +16,15 @@ from .permissions import IsSuperUser
 from .serializers import AuthSerializer, CustomUserSerializer, StudyFieldSerializer
 
 
+@extend_schema_view(
+    post=extend_schema(
+        summary='Получить токен по логину и паролю'
+    )
+)
 class LoginView(KnoxLoginView):
     permission_classes = (permissions.AllowAny,)
     serializer_class = AuthSerializer
 
-    @swagger_auto_schema(
-        operation_summary='Get bearer token',
-        operation_description='''Return bearer token by login and password. Login and password send in JSON'''
-    )
     def post(self, request, format=None):
         serializer = self.serializer_class(data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
@@ -54,17 +52,11 @@ class CustomUserPagination(PageNumberPagination):
     page_size_query_param = "page_size"
 
 
-@method_decorator(
-    name='list',
-    decorator=swagger_auto_schema(
-        operation_summary='Get list users',
-        operation_description='''Return list with all users by get-request. With empty query return list all the users. 
-        In query might set: page, page_size, filter, sort_by.
-        ''',
-        manual_parameters=[
-            openapi.Parameter('role', in_=openapi.IN_QUERY, type=openapi.TYPE_STRING),
-            openapi.Parameter('sort_by', in_=openapi.IN_QUERY, type=openapi.TYPE_STRING),
-        ]
+@extend_schema_view(
+    list=extend_schema(
+        summary='Получить список пользователей по токену',
+        parameters=[OpenApiParameter(name='role', location=OpenApiParameter.QUERY, description='фильтр'),
+                    OpenApiParameter(name='sort_by', location=OpenApiParameter.QUERY, description='сортировка')],
     )
 )
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
