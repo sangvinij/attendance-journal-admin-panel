@@ -32,7 +32,7 @@ Open your web browser and go to `http://localhost:8000/admin/`. Log in with the 
 
 The project provides the following endpoints:
 
-- swagger/ - info by endpoints
+- api/docs/ - info by project
 - auth/users/ - endpoint for creating a new user.
 - auth/users/me/ - endpoint for getting information about the current user.
 - auth/token/login/ - endpoint for getting token.
