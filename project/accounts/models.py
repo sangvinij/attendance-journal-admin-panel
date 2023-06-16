@@ -8,6 +8,7 @@ from .managers import UserManager
 
 class StudyField(models.Model):
     study_field = models.CharField(verbose_name="направление", max_length=255, null=True, blank=True)
+    short_study_field = models.CharField(verbose_name="напр.", max_length=255, null=True, blank=True)
 
     def __str__(self):
         return self.study_field

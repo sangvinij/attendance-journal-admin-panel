@@ -18,7 +18,7 @@ class CreateUserSerializer(UserCreateSerializer):
 class StudyFieldSerializer(serializers.ModelSerializer):
     class Meta:
         model = StudyField
-        fields = ["study_field"]
+        fields = ["study_field", "short_study_field"]
 
 
 class AuthSerializer(serializers.Serializer):

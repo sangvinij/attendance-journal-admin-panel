@@ -162,7 +162,7 @@ SPECTACULAR_SETTINGS = {
     \n\tAuthorization: Token <token>
     ''',
 
-    'VERSION': '1.2.2',
+    'VERSION': '1.3.0',
     'SERVE_INCLUDE_SCHEMA': False,
     'PREPROCESSING_HOOKS': ["project.scheme.custom_preprocessing_hook"]
 }
