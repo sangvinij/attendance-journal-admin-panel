@@ -18,7 +18,6 @@ class KnoxTokenScheme(OpenApiAuthenticationExtension):
 
 def custom_preprocessing_hook(endpoints):
     hidden_urls = {'/auth/users/activation/',
-                   '/api/users/study_fields/',
                    '/api/users/study_fields/{pk}/',
                    '/api/users/list/{pk}/',
                    '/auth/users/',

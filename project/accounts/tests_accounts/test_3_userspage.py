@@ -68,3 +68,26 @@ class TestUserModel:
         rs2 = self.response_to_api_url(token, role="metodist")
         for user in rs2.json()["results"]:
             assert user["is_metodist"] is True
+
+    def test_check_block_of_user(self):
+        superuser_username = "test_userspage_superuser"
+        superuser_password = "admin1"
+        register_user(username=superuser_username, password=superuser_password, is_superuser=True)
+        register_user(username='test_not_blocked_user', password='password1')
+        register_user(username='test_blocked_user', password='password1')
+
+        token = create_token(username='test_userspage_superuser', password='admin1').json()["auth_token"]
+
+        create_token('test_blocked_user', 'wrong_password')
+        create_token('test_blocked_user', 'wrong_password')
+        create_token('test_blocked_user', 'wrong_password')
+
+        list_of_users = (self.response_to_api_url(token).json()['results'])
+        for user in list_of_users:
+            if user['username'] == 'test_blocked_user':
+                test_blocked_user = user
+            if user['username'] == 'test_not_blocked_user':
+                test_not_blocked_user = user
+
+        assert test_blocked_user['is_active'] is False
+        assert test_not_blocked_user['is_active'] is True
