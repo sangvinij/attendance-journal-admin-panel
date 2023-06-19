@@ -10,9 +10,21 @@ from .models import StudyField, User
 
 
 class CreateUserSerializer(UserCreateSerializer):
+    is_active = serializers.BooleanField(default=True)
+
     class Meta:
         model = User
-        fields = ("username", "password", "first_name", "last_name", "is_superuser", "is_metodist", "is_teacher")
+        fields = (
+            "id",
+            "username",
+            "password",
+            "first_name",
+            "last_name",
+            "is_superuser",
+            "is_metodist",
+            "is_teacher",
+            "is_active",
+        )
 
 
 class StudyFieldSerializer(serializers.ModelSerializer):
@@ -22,7 +34,7 @@ class StudyFieldSerializer(serializers.ModelSerializer):
 
 
 class AuthSerializer(serializers.Serializer):
-    default_error_messages = {"no_active_account": "Неверное имя пользователя и/или пароль"}
+    default_error_messages = {"invalid_credentials": "Неверное имя пользователя и/или пароль"}
     username = serializers.CharField(trim_whitespace=False)
     password = serializers.CharField(style={"input_type": "password"}, trim_whitespace=False)
 
@@ -33,7 +45,7 @@ class AuthSerializer(serializers.Serializer):
         user = authenticate(request=self.context.get("request"), username=username, password=password)
 
         if not user:
-            msg = self.default_error_messages["no_active_account"]
+            msg = self.default_error_messages["invalid_credentials"]
             raise exceptions.AuthenticationFailed(detail=msg, code="authentication")
 
         AccessAttempt.objects.filter(username=username).delete()

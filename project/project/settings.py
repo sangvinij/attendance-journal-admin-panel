@@ -1,6 +1,5 @@
 import os
 from datetime import timedelta
-
 from pathlib import Path
 
 import dj_database_url
@@ -32,9 +31,9 @@ PROJECT_APPS = ["accounts.apps.AccountsConfig"]
 
 OTHER_APPS = [
     "axes",
-    'knox',
+    "knox",
     "djoser",
-    'drf_spectacular',
+    "drf_spectacular",
     "rest_framework",
 ]
 
@@ -42,7 +41,7 @@ INSTALLED_APPS = DJANGO_APPS + PROJECT_APPS + OTHER_APPS
 
 AUTHENTICATION_BACKENDS = [
     "axes.backends.AxesStandaloneBackend",
-    "django.contrib.auth.backends.ModelBackend",
+    "accounts.backends.CustomModelBackend",
 ]
 
 AXES_ENABLED = True
@@ -129,14 +128,17 @@ AUTH_USER_MODEL = "accounts.User"
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": ("knox.auth.TokenAuthentication",),
     "DEFAULT_RENDERER_CLASSES": ("rest_framework.renderers.JSONRenderer",),
-    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
 DJOSER = {
     "SERIALIZERS": {
         "user_create": "accounts.serializers.CreateUserSerializer",
         "user": "accounts.serializers.CustomUserSerializer",
-        "current_user": "accounts.serializers.CustomUserSerializer"
+        "current_user": "accounts.serializers.CustomUserSerializer",
+    },
+    "PERMISSIONS": {
+        "user": ["accounts.permissions.CurrentUserOrSuperUser"],
     },
     "PASSWORD_RESET_CONFIRM_URL": "#/password/reset/confirm/{uid}/{token}",
 }
@@ -155,14 +157,13 @@ REST_KNOX = {
 }
 
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'Backend CRM',
-    'DESCRIPTION': f'''ИНФОРМАЦИЯ ПО ПРОЕКТУ
+    "TITLE": "Backend CRM",
+    "DESCRIPTION": f"""ИНФОРМАЦИЯ ПО ПРОЕКТУ
     \nВремя жизни токена: {REST_KNOX['TOKEN_TTL']}
     \nФормат токена в header:
     \n\tAuthorization: Token <token>
-    ''',
-
-    'VERSION': '1.3.0',
-    'SERVE_INCLUDE_SCHEMA': False,
-    'PREPROCESSING_HOOKS': ["project.scheme.custom_preprocessing_hook"]
+    """,
+    "VERSION": "1.3.1",
+    "SERVE_INCLUDE_SCHEMA": False,
+    "PREPROCESSING_HOOKS": ["project.scheme.custom_preprocessing_hook"],
 }
