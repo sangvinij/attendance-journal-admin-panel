@@ -1,6 +1,6 @@
 from django.dispatch import receiver
 from django.contrib.auth import get_user_model
-from django.db.models.signals import post_save, post_delete
+from django.db.models.signals import post_save, post_delete, pre_save
 
 from axes.signals import user_locked_out
 from axes.utils import reset
@@ -8,7 +8,6 @@ from axes.models import AccessAttempt
 
 from rest_framework import status
 from rest_framework.exceptions import Throttled
-
 
 User = get_user_model()
 
@@ -35,6 +34,12 @@ def handle_access_attempt_deleted(sender, instance, **kwargs):
     if user and not AccessAttempt.objects.filter(username=instance.username).exists():
         user.is_active = True
         user.save()
+
+
+@receiver(pre_save, sender=User)
+def handle_user_check_is_active(sender, instance, **kwargs):
+    if instance.is_active:
+        AccessAttempt.objects.filter(username=instance.username).delete()
 
 
 @receiver(post_save, sender=User)
