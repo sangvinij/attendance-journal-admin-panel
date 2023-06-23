@@ -99,3 +99,18 @@ class StudyFieldViewSet(viewsets.ModelViewSet):
     queryset = StudyField.objects.all()
     serializer_class = StudyFieldSerializer
     permission_classes = [IsSuperUser]
+
+
+class UserViewPage(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = CustomUserSerializer
+    http_method_names = ['get', 'patch']
+    filter_backends = [filters.OrderingFilter, filters.SearchFilter]
+    permission_classes = [IsSuperUser]
+    pagination_class = CustomUserPagination
+
+    def get_object(self):
+        queryset = self.get_queryset()
+        user_id = self.kwargs['pk']
+        user_data = queryset.get(id=user_id)
+        return user_data

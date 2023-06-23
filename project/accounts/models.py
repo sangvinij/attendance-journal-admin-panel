@@ -31,6 +31,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_metodist = models.BooleanField("методист", default=False)
     date_added = models.DateTimeField("дата создания", auto_now_add=True)
     last_update = models.DateTimeField("дата последнего обновления", auto_now=True)
+    email = models.EmailField("email", null=True, blank=True)
     study_fields = models.ManyToManyField(StudyField, verbose_name="направления", blank=True)
 
     objects = UserManager()

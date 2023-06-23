@@ -91,3 +91,30 @@ class TestUserModel:
 
         assert test_blocked_user['is_active'] is False
         assert test_not_blocked_user['is_active'] is True
+
+    def test_check_user_page(self):
+        superuser_username = "test_userspage_superuser1"
+        superuser_password = "admin1"
+        register_user(username=superuser_username, password=superuser_password, is_superuser=True)
+        register_user(username="test_teacher", password="admin1", is_teacher=True)
+        register_user(username="test_not_teacher", password="admin1", is_teacher=False)
+        token = create_token(username=superuser_username, password=superuser_password).json()["auth_token"]
+        rs = self.response_to_api_url(token)
+        assert rs.status_code == 200
+        for user in rs.json()["results"]:
+            if user["username"] == "test_teacher":
+                user_teacher_id = user["id"]
+            if user["username"] == "test_not_teacher":
+                user_not_teacher_id = user["id"]
+
+        page_url = f"{host}/api/users/user/{user_teacher_id}"
+        rs2 = requests.get(page_url, headers={"Authorization": f"Token {token}"})
+        assert rs2.json()["study_groups"] == ['stub group 1', 'stub group 2', 'stub group 3']
+        assert rs2.json()["study_courses"] == ['stub course 1', 'stub course 2', 'stub course 3']
+        assert rs2.status_code == 200
+
+        page_url = f"{host}/api/users/user/{user_not_teacher_id}"
+        rs2 = requests.get(page_url, headers={"Authorization": f"Token {token}"})
+        assert rs2.json()["study_groups"] is None
+        assert rs2.json()["study_courses"] is None
+        assert rs2.status_code == 200

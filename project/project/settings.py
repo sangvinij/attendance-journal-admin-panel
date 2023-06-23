@@ -163,7 +163,7 @@ SPECTACULAR_SETTINGS = {
     \nФормат токена в header:
     \n\tAuthorization: Token <token>
     """,
-    "VERSION": "1.3.1",
+    "VERSION": "1.3.2",
     "SERVE_INCLUDE_SCHEMA": False,
     "PREPROCESSING_HOOKS": ["project.scheme.custom_preprocessing_hook"],
 }

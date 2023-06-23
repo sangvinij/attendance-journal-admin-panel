@@ -4,13 +4,14 @@ from knox import views as knox_views
 
 from rest_framework.routers import DefaultRouter
 
-from .views import LoginView, StudyFieldViewSet, UserViewSet
+from .views import LoginView, StudyFieldViewSet, UserViewSet, UserViewPage
 
 router = DefaultRouter()
 
 users_router = DefaultRouter()
 users_router.register("list", UserViewSet)
 users_router.register("study_fields", StudyFieldViewSet)
+users_router.register("user", UserViewPage)
 
 urlpatterns = [
     path(r"", include(router.urls)),
