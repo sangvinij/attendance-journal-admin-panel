@@ -15,7 +15,7 @@ from accounts.models import StudyField
 
 def create_superuser_for_adminpanel():
     User.objects.create_superuser(username=os.getenv("DJANGO_SUPERUSER_USERNAME", "Iteen.Admin"),
-                                  password=os.getenv("DJANGO_SUPERUSER_PASSWORD", "admin1admin1"))
+                                  password=os.getenv("DJANGO_SUPERUSER_PASSWORD", "Admin1Admin1"))
 
 
 def create_study_fields():
