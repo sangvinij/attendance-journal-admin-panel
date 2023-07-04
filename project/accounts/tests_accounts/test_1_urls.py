@@ -1,11 +1,6 @@
-import os
-
-from dotenv import find_dotenv, load_dotenv
-
 import requests
 
-load_dotenv(find_dotenv())
-host = os.getenv("HOST_FOR_TESTS", "http://localhost:8000")
+from .api_requests import host
 
 
 def test_check_code_response():

@@ -11,6 +11,10 @@ from .models import StudyField, User
 
 class CreateUserSerializer(UserCreateSerializer):
     is_active = serializers.BooleanField(default=True)
+    password = serializers.CharField(style={"input_type": "password"}, trim_whitespace=False, write_only=True)
+    first_name = serializers.CharField(required=True)
+    last_name = serializers.CharField(required=True)
+    email = serializers.EmailField(required=True)
 
     class Meta:
         model = User
@@ -20,10 +24,14 @@ class CreateUserSerializer(UserCreateSerializer):
             "password",
             "first_name",
             "last_name",
+            "middle_name",
             "is_superuser",
-            "is_metodist",
             "is_teacher",
+            "is_metodist",
             "is_active",
+            "email",
+            "date_added",
+            "last_update",
         )
 
 

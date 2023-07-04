@@ -86,11 +86,12 @@ TEMPLATES = [
 WSGI_APPLICATION = "project.wsgi.application"
 
 DATABASES = {
-    "default": dj_database_url.parse(
-        os.getenv("PRIMARY_DATABASE_URL"),
-        conn_max_age=600,
-        conn_health_checks=True,
-    )
+    "default":
+        dj_database_url.parse(
+            os.getenv("PRIMARY_DATABASE_URL"),
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
 }
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -139,6 +140,8 @@ DJOSER = {
     },
     "PERMISSIONS": {
         "user": ["accounts.permissions.CurrentUserOrSuperUser"],
+        "user_create": ["accounts.permissions.IsSuperUser"],
+        "user_delete": ["accounts.permissions.IsSuperUser"]
     },
     "PASSWORD_RESET_CONFIRM_URL": "#/password/reset/confirm/{uid}/{token}",
 }
@@ -163,7 +166,7 @@ SPECTACULAR_SETTINGS = {
     \nФормат токена в header:
     \n\tAuthorization: Token <token>
     """,
-    "VERSION": "1.3.2",
+    "VERSION": "1.4.0",
     "SERVE_INCLUDE_SCHEMA": False,
     "PREPROCESSING_HOOKS": ["project.scheme.custom_preprocessing_hook"],
 }

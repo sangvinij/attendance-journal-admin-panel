@@ -20,7 +20,6 @@ def custom_preprocessing_hook(endpoints):
     hidden_urls = {'/auth/users/activation/',
                    '/api/users/study_fields/{pk}/',
                    '/api/users/list/{pk}/',
-                   '/auth/users/',
                    '/auth/users/{id}/',
                    '/auth/users/resend_activation/',
                    '/auth/users/reset_password/',
