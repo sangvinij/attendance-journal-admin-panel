@@ -1,10 +1,13 @@
 #!/bin/bash
+set -e
+
+echo 'Run Black'
+black . --check
 
 echo 'Wait...'
 sleep 25s
 
 echo 'Run Pytest'
 pytest . -s
-if [[ $? == 1 ]]; then exit 1; fi
 
 echo 'Succesful!!!'

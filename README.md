@@ -92,3 +92,9 @@ After start server, put next command in console:
 `poetry run pytest . -s`
 
 If you do not have any errors, then the tests are passed.
+
+## Running black
+
+run `poetry run black . --check` to check if the code needs to be formatted
+
+run `poetry run black .` to reformat the code 

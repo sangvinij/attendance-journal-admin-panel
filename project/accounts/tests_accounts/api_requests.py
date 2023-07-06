@@ -10,15 +10,14 @@ host = os.getenv("HOST_FOR_TESTS", "http://localhost:8000")
 
 
 def register_user(
-        username: str,
-        password: str,
-        superuser_token: str,
-        first_name: str = "Name",
-        last_name: str = "Last Name",
-        email: str = "example@example.com",
-        **kwargs,
+    username: str,
+    password: str,
+    superuser_token: str,
+    first_name: str = "Name",
+    last_name: str = "Last Name",
+    email: str = "example@example.com",
+    **kwargs,
 ) -> requests.models.Response:
-
     data = {
         "username": username,
         "password": password,

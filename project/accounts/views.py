@@ -16,11 +16,7 @@ from .permissions import IsSuperUser
 from .serializers import AuthSerializer, CustomUserSerializer, StudyFieldSerializer
 
 
-@extend_schema_view(
-    post=extend_schema(
-        summary='Получить токен по логину и паролю'
-    )
-)
+@extend_schema_view(post=extend_schema(summary="Получить токен по логину и паролю"))
 class LoginView(KnoxLoginView):
     permission_classes = (permissions.AllowAny,)
     serializer_class = AuthSerializer
@@ -54,9 +50,11 @@ class CustomUserPagination(PageNumberPagination):
 
 @extend_schema_view(
     list=extend_schema(
-        summary='Получить список пользователей по токену',
-        parameters=[OpenApiParameter(name='role', location=OpenApiParameter.QUERY, description='фильтр'),
-                    OpenApiParameter(name='sort_by', location=OpenApiParameter.QUERY, description='сортировка')],
+        summary="Получить список пользователей по токену",
+        parameters=[
+            OpenApiParameter(name="role", location=OpenApiParameter.QUERY, description="фильтр"),
+            OpenApiParameter(name="sort_by", location=OpenApiParameter.QUERY, description="сортировка"),
+        ],
     )
 )
 class UserViewSet(viewsets.ReadOnlyModelViewSet):
@@ -104,13 +102,13 @@ class StudyFieldViewSet(viewsets.ModelViewSet):
 class UserViewPage(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = CustomUserSerializer
-    http_method_names = ['get', 'patch']
+    http_method_names = ["get", "patch"]
     filter_backends = [filters.OrderingFilter, filters.SearchFilter]
     permission_classes = [IsSuperUser]
     pagination_class = CustomUserPagination
 
     def get_object(self):
         queryset = self.get_queryset()
-        user_id = self.kwargs['pk']
+        user_id = self.kwargs["pk"]
         user_data = queryset.get(id=user_id)
         return user_data
