@@ -29,7 +29,7 @@ def create_user(authenticate_superuser):
     superuser_token = authenticate_superuser["superuser_token"]
     superuser_password = authenticate_superuser["superuser_password"]
     username = "test_user"
-    password = "Password1"
+    password = "+tU/vW-#]{q@9"
     user = register_user(username=username, password=password, superuser_token=superuser_token).json()
     token = create_token(username=username, password=password).json()["auth_token"]
 

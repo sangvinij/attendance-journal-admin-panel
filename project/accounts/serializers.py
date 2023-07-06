@@ -63,8 +63,8 @@ class AuthSerializer(serializers.Serializer):
 
 class CustomUserSerializer(UserSerializer):
     study_fields = StudyFieldSerializer(many=True, read_only=True)
-    study_groups = serializers.SerializerMethodField(method_name='get_study_groups')
-    study_courses = serializers.SerializerMethodField(method_name='get_study_courses')
+    study_groups = serializers.SerializerMethodField(method_name="get_study_groups")
+    study_courses = serializers.SerializerMethodField(method_name="get_study_courses")
 
     class Meta(UserSerializer.Meta):
         fields = (
@@ -89,13 +89,13 @@ class CustomUserSerializer(UserSerializer):
     @staticmethod
     def get_study_groups(user: User):
         if user.is_teacher:
-            study_groups = ['stub group 1', 'stub group 2', 'stub group 3']
+            study_groups = ["stub group 1", "stub group 2", "stub group 3"]
             return study_groups
         return None
 
     @staticmethod
     def get_study_courses(user: User):
         if user.is_teacher:
-            study_courses = ['stub course 1', 'stub course 2', 'stub course 3']
+            study_courses = ["stub course 1", "stub course 2", "stub course 3"]
             return study_courses
         return None
