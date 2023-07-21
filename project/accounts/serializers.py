@@ -1,12 +1,14 @@
 from axes.models import AccessAttempt
 
 from django.contrib.auth import authenticate
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 
 from djoser.serializers import UserCreateSerializer, UserSerializer
 
 from rest_framework import exceptions, serializers
 
-from .models import StudyField, User
+from .models import StudyField, User, Prepod
 
 
 class CreateUserSerializer(UserCreateSerializer):
@@ -30,8 +32,6 @@ class CreateUserSerializer(UserCreateSerializer):
             "is_metodist",
             "is_active",
             "email",
-            "date_added",
-            "last_update",
         )
 
 
@@ -63,8 +63,7 @@ class AuthSerializer(serializers.Serializer):
 
 class CustomUserSerializer(UserSerializer):
     study_fields = StudyFieldSerializer(many=True, read_only=True)
-    study_groups = serializers.SerializerMethodField(method_name="get_study_groups")
-    study_courses = serializers.SerializerMethodField(method_name="get_study_courses")
+    last_sync = serializers.CharField(source="last_sync_func", read_only=True)
 
     class Meta(UserSerializer.Meta):
         fields = (
@@ -79,23 +78,74 @@ class CustomUserSerializer(UserSerializer):
             "is_teacher",
             "is_metodist",
             "study_fields",
-            "date_added",
-            "last_update",
             "email",
             "study_groups",
             "study_courses",
+            "date_added",
+            "last_update",
+            "last_sync",
         )
 
-    @staticmethod
-    def get_study_groups(user: User):
-        if user.is_teacher:
-            study_groups = ["stub group 1", "stub group 2", "stub group 3"]
-            return study_groups
-        return None
 
-    @staticmethod
-    def get_study_courses(user: User):
-        if user.is_teacher:
-            study_courses = ["stub course 1", "stub course 2", "stub course 3"]
-            return study_courses
-        return None
+class PrepodsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Prepod
+        fields = "__all__"
+
+
+class UpdateUserSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(style={"input_type": "password"}, trim_whitespace=False, write_only=True)
+    is_active = serializers.BooleanField(default=True)
+    is_teacher = serializers.BooleanField(read_only=True)
+
+    TEACHER_FIELDS = {
+        "username",
+        "password",
+        "is_superuser",
+        "is_metodist",
+        "is_active",
+        "email",
+    }
+
+    NOT_TEACHER_FIELDS = {
+        "is_teacher",
+        "first_name",
+        "last_name",
+        "middle_name",
+    }
+
+    united_fields = sorted(TEACHER_FIELDS | NOT_TEACHER_FIELDS)
+
+    def validate(self, attrs):
+        if not attrs.get("email") and not self.instance.email:
+            raise serializers.ValidationError({"email": "Обязательное поле"})
+        return attrs
+
+    def update(self, instance, validated_data):
+        serializers.raise_errors_on_nested_writes("update", self, validated_data)
+        is_teacher = validated_data.get("is_teacher", instance.is_teacher)
+        password = validated_data.pop("password", None)
+
+        fields = self.TEACHER_FIELDS if is_teacher else self.united_fields
+
+        for attr, value in validated_data.items():
+            if attr in fields:
+                setattr(instance, attr, value)
+
+        if password:
+            instance.set_password(password)
+            try:
+                validate_password(password, instance)
+            except ValidationError as e:
+                raise serializers.ValidationError({"password": e.messages})
+
+        instance.save()
+        return instance
+
+    class Meta:
+        model = User
+        fields = [
+            "id",
+        ]
+
+    Meta.fields.extend(united_fields)

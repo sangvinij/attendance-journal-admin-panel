@@ -90,7 +90,19 @@ DATABASES = {
         os.getenv("PRIMARY_DATABASE_URL"),
         conn_max_age=600,
         conn_health_checks=True,
-    )
+    ),
+    "mssql": {
+        "ENGINE": "mssql",
+        "HOST": os.getenv("MSSQL_DATABASE_HOST"),
+        "NAME": os.getenv("MSSQL_DATABASE_NAME"),
+        "PASSWORD": os.getenv("MSSQL_DATABASE_PASSWORD"),
+        "PORT": os.getenv("MSSQL_DATABASE_PORT"),
+        "USER": os.getenv("MSSQL_DATABASE_USERNAME"),
+        "OPTIONS": {
+            "driver": "ODBC Driver 18 for SQL Server",
+            "extra_params": "Encrypt=no",
+        },
+    },
 }
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -139,10 +151,10 @@ DJOSER = {
     },
     "PERMISSIONS": {
         "user": ["accounts.permissions.CurrentUserOrSuperUser"],
+        "user_list": ["accounts.permissions.IsSuperUser"],
         "user_create": ["accounts.permissions.IsSuperUser"],
         "user_delete": ["accounts.permissions.IsSuperUser"],
     },
-    "PASSWORD_RESET_CONFIRM_URL": "#/password/reset/confirm/{uid}/{token}",
 }
 
 REST_KNOX = {
@@ -165,7 +177,7 @@ SPECTACULAR_SETTINGS = {
     \nФормат токена в header:
     \n\tAuthorization: Token <token>
     """,
-    "VERSION": "1.4.0",
+    "VERSION": "1.4.1",
     "SERVE_INCLUDE_SCHEMA": False,
     "PREPROCESSING_HOOKS": ["project.scheme.custom_preprocessing_hook"],
 }

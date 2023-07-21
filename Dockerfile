@@ -4,6 +4,14 @@ ARG group
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
+#Install Microsoft ODBC Driver
+RUN apt-get update && apt install --no-install-recommends --yes curl gnupg2
+RUN (curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add -) && \
+    (curl https://packages.microsoft.com/config/debian/11/prod.list > /etc/apt/sources.list.d/mssql-release.list) && \
+    apt-get update
+ENV ACCEPT_EULA=Y
+RUN apt-get install --yes msodbcsql18
+
 # Creating a new user, upgrading pip to the latesr version and installing poetry
 RUN useradd -ms /bin/bash newuser && \
     python -m pip install --upgrade pip && \
