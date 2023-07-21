@@ -17,16 +17,16 @@ class TestLogin:
     username = "test_username2"
     password = "Admin1337"
 
-    def test_superuser_exists(self, authenticate_superuser):
-        superuser_username = authenticate_superuser["superuser_username"]
-        superuser_token = authenticate_superuser["superuser_token"]
+    def test_superuser_exists(self, superuser_credentials):
+        superuser_username = superuser_credentials["superuser_username"]
+        superuser_token = superuser_credentials["superuser_token"]
         rs = get_info_about_current_user(superuser_token)
         assert rs.status_code == 200
         assert rs.json()["username"] == superuser_username
 
-    def test_create_user(self, authenticate_superuser):
-        superuser_token = authenticate_superuser["superuser_token"]
-        superuser_password = authenticate_superuser["superuser_password"]
+    def test_create_user(self, superuser_credentials):
+        superuser_token = superuser_credentials["superuser_token"]
+        superuser_password = superuser_credentials["superuser_password"]
         rs = register_user(
             username=self.username,
             password=self.password,
@@ -48,9 +48,9 @@ class TestLogin:
             user_id=created_user_data["id"], superuser_password=superuser_password, superuser_token=superuser_token
         )
 
-    def test_get_token_with_wrong_and_correct_data(self, create_user):
-        username = create_user["username"]
-        password = create_user["password"]
+    def test_get_token_with_wrong_and_correct_data(self, user_data):
+        username = user_data["username"]
+        password = user_data["password"]
 
         failed_rs = create_token(username=username, password=f"wrong {password}")
         assert failed_rs.status_code == 401
@@ -60,9 +60,9 @@ class TestLogin:
         assert valid_rs.status_code == 200
         assert "auth_token" in valid_rs.json()
 
-    def test_get_access_to_protected_endpoint(self, create_user):
-        token = create_user["token"]
-        username = create_user["username"]
+    def test_get_access_to_protected_endpoint(self, user_data):
+        token = user_data["token"]
+        username = user_data["username"]
 
         failed_rs = get_info_about_current_user(token="wrong token")
         assert failed_rs.status_code == 401
@@ -73,8 +73,8 @@ class TestLogin:
         assert "username" in valid_rs.json()
         assert valid_rs.json()["username"] == username
 
-    def test_delete_token(self, create_user):
-        token = create_user["token"]
+    def test_delete_token(self, user_data):
+        token = user_data["token"]
         get_access_rs = get_info_about_current_user(token=token)
         assert get_access_rs.status_code == 200
 
@@ -84,9 +84,9 @@ class TestLogin:
         final_rs = get_info_about_current_user(token)
         assert final_rs.status_code == 401
 
-    def test_login_with_spaces_in_credentials(self, create_user):
-        username = create_user["username"]
-        password = create_user["password"]
+    def test_login_with_spaces_in_credentials(self, user_data):
+        username = user_data["username"]
+        password = user_data["password"]
         rs = create_token(username="\x20" + username, password=password)
         assert rs.status_code == 401
         rs2 = create_token(username=username + "\x20", password=password)
@@ -100,12 +100,12 @@ class TestLogin:
         valid_rs = create_token(username=username, password=password)
         assert "auth_token" in valid_rs.json()
 
-    def test_change_flag_is_active(self, authenticate_superuser, create_user):
-        superuser_token = authenticate_superuser["superuser_token"]
+    def test_change_flag_is_active(self, superuser_credentials, user_data):
+        superuser_token = superuser_credentials["superuser_token"]
 
-        username = create_user["username"]
-        password = create_user["password"]
-        user = create_user["user"]
+        username = user_data["username"]
+        password = user_data["password"]
+        user = user_data["user"]
 
         for _ in range(3):
             create_token(username=username, password=f"wrong {password}")

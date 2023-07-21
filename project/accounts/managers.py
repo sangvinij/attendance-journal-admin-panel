@@ -1,4 +1,5 @@
 from django.contrib.auth.base_user import BaseUserManager
+from django.db import models
 
 
 class UserManager(BaseUserManager):
@@ -26,3 +27,8 @@ class UserManager(BaseUserManager):
         user.set_password(password)
         user.save(using=self._db)
         return user
+
+
+class MssqlManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().using("mssql")

@@ -1,4 +1,4 @@
-from rest_framework.permissions import BasePermission, IsAuthenticated, SAFE_METHODS
+from rest_framework.permissions import BasePermission, IsAuthenticated
 
 
 class IsSuperUser(BasePermission):
@@ -9,6 +9,4 @@ class IsSuperUser(BasePermission):
 class CurrentUserOrSuperUser(IsAuthenticated):
     def has_object_permission(self, request, view, obj):
         user = request.user
-        if obj == user:
-            return True
-        return request.method in SAFE_METHODS or user.is_superuser
+        return obj == user or user.is_superuser

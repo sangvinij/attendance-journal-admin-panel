@@ -1,6 +1,24 @@
 version: '3.9'
 services:
 
+  redis:
+    container_name: iteen.redis
+    image: redis:7.0.12-alpine3.18
+    networks:
+      - iteen
+    restart: always
+    ports:
+      - '6379:6379'
+    volumes:
+      - .local/data:/var/lib/redis/data
+    init: true
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
   db:
     container_name: iteen.db
     image: postgres:15.2
@@ -39,6 +57,27 @@ services:
     depends_on:
       - db
 
+  mssql_db:
+    container_name: iteen.mssql
+    image: mcr.microsoft.com/mssql/server:2017-latest
+    networks: 
+      - iteen
+    restart: always
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD}
+      - MSSQL_PID=${MSSQL_PID}
+    ports:
+      - "1433:1433"
+    volumes:
+      - .local/data:/var/lib/mssql/data
+    init: true
+    healthcheck:
+      test: ["CMD", "/opt/mssql-tools/bin/sqlcmd", "-U", "sa", "-P", "${MSSQL_SA_PASSWORD}", "-Q", "SELECT 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
   webapp:
     build:
       args:
@@ -54,6 +93,13 @@ services:
       PRIMARY_DATABASE_URL: ${PRIMARY_DATABASE_URL}
       DEBUG_MODE: ${DEBUG_MODE}
       ALLOWED_HOSTS: ${ALLOWED_HOSTS}
+      REDIS_DSN: ${REDIS_DSN}
+      WEBAPP_HOST: ${WEBAPP_HOST}
+      MSSQL_DATABASE_HOST: ${MSSQL_DATABASE_HOST}
+      MSSQL_DATABASE_NAME: ${MSSQL_DATABASE_NAME}
+      MSSQL_DATABASE_PASSWORD: ${MSSQL_DATABASE_PASSWORD}
+      MSSQL_DATABASE_PORT: ${MSSQL_DATABASE_PORT}
+      MSSQL_DATABASE_USERNAME: ${MSSQL_DATABASE_USERNAME}
     networks:
       - iteen
     ports:

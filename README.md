@@ -33,12 +33,11 @@ Open your web browser and go to `http://localhost:8000/admin/`. Log in with the 
 The project provides the following endpoints:
 
 - api/docs/ - info by project
-- auth/users/ - endpoint for creating a new user.
+- auth/users/ - endpoint for creating a new user or getting list of users.
 - auth/users/me/ - endpoint for getting information about the current user.
 - auth/token/login/ - endpoint for getting token.
 - auth/token/logout/ - endpoint for deleting token.
-- auth/token/logoutall/ - endpoint for deleting all users's tokens. 
-- api/users/list/ - get list of users
+- auth/token/logoutall/ - endpoint for deleting all users's tokens.
 
 To use these endpoints, follow these steps:
 
@@ -69,7 +68,7 @@ For example:
 
 4. Get information about the current user by sending a GET request to the `auth/users/me/` endpoint with the user's token in the Authorization header like in the example above.
 
-5. Get list of all the users by sending a GET request to the `api/users/list/` with the admin's token.
+5. Get list of all the users by sending a GET request to the `auth/users/` with the admin's token.
 
 6. Delete your token by sending a POST request to the `auth/token/logout/` endpoint with the user's token in the Authorization header.
 
@@ -92,6 +91,9 @@ After start server, put next command in console:
 `poetry run pytest . -s`
 
 If you do not have any errors, then the tests are passed.
+
+**NOTE:** 
+- To run tests for mssql database localy do not forget to provide variables in **.env** file. Example of varaibles you can find in **.env.sample** file in block **#MsSQL options**.
 
 ## Running black
 

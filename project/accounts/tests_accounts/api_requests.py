@@ -46,10 +46,17 @@ def get_info_about_current_user(token: str) -> requests.models.Response:
     return rs
 
 
-def update_users_data(superuser_token: str, user_id: int, **kwargs) -> requests.models.Response:
-    rs = requests.patch(
-        f"{host}/auth/users/{user_id}/", json=kwargs, headers={"Authorization": f"Token {superuser_token}"}
-    )
+def update_users_data(superuser_token: str, user_id: int, method: str = "patch", **kwargs) -> requests.models.Response:
+    headers = {"Authorization": f"Token {superuser_token}"}
+    url = f"{host}/auth/users/{user_id}/"
+    match method:
+        case "patch":
+            rs = requests.patch(url, json=kwargs, headers=headers)
+        case "put":
+            rs = requests.put(url, json=kwargs, headers=headers)
+        case _:
+            raise TypeError("Invalid method")
+
     return rs
 
 
