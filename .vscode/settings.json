@@ -1,0 +1,7 @@
+{
+    "python.analysis.autoSearchPaths": false,
+    "python.analysis.extraPaths": [],
+    "python.autoComplete.extraPaths": [],
+    "python.defaultInterpreterPath": "/Users/alex/Library/Caches/pypoetry/virtualenvs/crm-backend-eukZLreU-py3.11/bin/python",
+    "python.terminal.activateEnvironment": false
+}
