@@ -6,6 +6,7 @@ from django.utils import timezone
 from django.db.utils import OperationalError, InterfaceError, IntegrityError
 from django.views import generic
 
+from djoser.conf import settings
 from djoser.views import UserViewSet as DjoserViewSet
 
 from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter
@@ -23,7 +24,7 @@ from transliterate import translit
 from .enums import StudyFieldOrder
 from .models import StudyField, Prepod, User, Group
 from .permissions import IsSuperUser
-from .serializers import AuthSerializer, StudyFieldSerializer, PrepodsSerializer, UpdateUserSerializer
+from .serializers import AuthSerializer, StudyFieldSerializer, PrepodsSerializer
 
 import os
 import redis
@@ -82,7 +83,10 @@ class UserViewSet(DjoserViewSet):
     pagination_class = CustomUserPagination
 
     def get_queryset(self):
-        queryset = super().get_queryset()
+        user = self.request.user
+        queryset = self.queryset
+        if settings.HIDE_USERS and self.action == "list" and not user.is_superuser:
+            queryset = queryset.filter(pk=user.pk)
         role = self.request.query_params.get("role", None)
         sort_by = self.request.query_params.get("sort_by", None)
 
@@ -110,7 +114,7 @@ class UserViewSet(DjoserViewSet):
 
     def get_serializer_class(self):
         if self.action == "update" or self.action == "partial_update":
-            return UpdateUserSerializer
+            return settings.SERIALIZERS.user_update
         return super().get_serializer_class()
 
 
@@ -159,7 +163,7 @@ class RefreshPoint(APIView):
     def user_object_create(self, teacher, groups):
         groups_of_teacher = self.Groups(groups)
         names = self.Names(teacher.fullname)
-        email = teacher.email
+        email = teacher.email.split("; ", 1)[0]
         id_crm = teacher.id
         username = self.username_generator(names, id_crm)
 
@@ -179,7 +183,7 @@ class RefreshPoint(APIView):
     def user_object_upgrade(self, teacher, user, groups):
         groups_of_teacher = self.Groups(groups)
         names = self.Names(teacher.fullname)
-        email = teacher.email
+        email = teacher.email.split("; ", 1)[0]
         user.first_name = names.first_name
         user.last_name = names.last_name
         user.middle_name = names.middle_name
@@ -200,7 +204,7 @@ class RefreshPoint(APIView):
         inequality += str(teacher_journal.study_groups) != str(groups_of_teacher_crm.study_groups)
         inequality += str(teacher_journal.study_courses) != str(groups_of_teacher_crm.study_courses)
         if teacher_crm.email and teacher_journal.email:
-            inequality += teacher_crm.email != teacher_journal.email
+            inequality += teacher_crm.email.split("; ", 1)[0] != teacher_journal.email
         return not inequality
 
     def get(self, request):
@@ -208,28 +212,36 @@ class RefreshPoint(APIView):
         update_teachers = []
         redis_db_url = os.getenv("REDIS_DSN")
         storage = redis.from_url(redis_db_url)
+
+        all_teachers_journal_copy = self.all_teachers_journal.all()
+        for teacher_of_journal in all_teachers_journal_copy:
+            if not self.all_teachers_crm.filter(id=teacher_of_journal.id_crm).exists():
+                try:
+                    teacher_of_journal.delete()
+                except ValueError:
+                    pass
+
         try:
             for teacher in self.all_teachers_crm:
                 groups = self.teacher_groups.filter(teacher_id=teacher.id)
                 if not self.all_teachers_journal.filter(id_crm=teacher.id).exists():
                     if groups.filter(teacher_id=teacher.id).exists():
-                        print("new user!!!")
-                        new_teacher = self.user_object_create(teacher, groups)
-                        new_teachers.append(new_teacher)
+                        try:
+                            new_teacher = self.user_object_create(teacher, groups)
+                            new_teachers.append(new_teacher)
+                        except IndexError:
+                            pass
                 else:
                     user_for_upgrade = self.all_teachers_journal.get(id_crm=teacher.id)
                     if not self.users_are_equal(user_for_upgrade, teacher, groups):
-                        print("upgrade!!!")
-                        upgraded_teacher = self.user_object_upgrade(teacher, user_for_upgrade, groups)
-                        update_teachers.append(upgraded_teacher)
+                        try:
+                            upgraded_teacher = self.user_object_upgrade(teacher, user_for_upgrade, groups)
+                            update_teachers.append(upgraded_teacher)
+                        except IndexError:
+                            pass
 
         except (OperationalError, InterfaceError, IntegrityError) as error:
             return JsonResponse({"Error": str(error)}, safe=False, status=418)
-
-        for teacher_of_journal in self.all_teachers_journal:
-            if not self.all_teachers_crm.filter(id=teacher_of_journal.id_crm).exists():
-                print("delete!!!")
-                teacher_of_journal.delete()
 
         User.objects.bulk_create(new_teachers)
         User.objects.bulk_update(

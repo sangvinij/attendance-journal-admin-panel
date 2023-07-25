@@ -8,6 +8,7 @@ from .models import StudyField, User
 
 
 class CustomUserAdmin(BaseUserAdmin):
+    readonly_fields = ("is_teacher",)
     form = UserChangeForm
     add_form = UserCreationForm
     list_display = (

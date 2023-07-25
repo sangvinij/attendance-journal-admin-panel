@@ -100,3 +100,27 @@ class TestUpdateUser:
 
         assert get_teacher_token_rs.status_code == 200
         assert "auth_token" in get_teacher_token_rs.json()
+
+    def test_self_update_is_active(self, superuser_credentials, user_data):
+        superuser_token = superuser_credentials["superuser_token"]
+
+        user = user_data["user"]
+        user_token = user_data["token"]
+
+        update_is_superuser_rs = update_users_data(
+            method="patch", user_id=user["id"], superuser_token=superuser_token, is_superuser=True
+        )
+        assert update_is_superuser_rs.status_code == 200
+        assert update_is_superuser_rs.json()["is_superuser"]
+
+        failed_update_is_active_rs = update_users_data(
+            method="patch", user_id=user["id"], superuser_token=user_token, is_active=False
+        )
+        assert failed_update_is_active_rs.status_code == 400
+        assert failed_update_is_active_rs.json() == {"is_active": "Вы не можете изменить флаг is_active для себя"}
+
+        valid_update_is_active_rs = update_users_data(
+            method="patch", user_id=user["id"], superuser_token=superuser_token, is_active=False
+        )
+        assert valid_update_is_active_rs.status_code == 200
+        assert valid_update_is_active_rs.json()["is_active"] is False

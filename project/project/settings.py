@@ -109,18 +109,6 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "accounts.validators.PassValidator",
     },
-    # {
-    #     'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    # },
-    # {
-    #     'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    # },
-    # {
-    #     'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    # },
-    # {
-    #     'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    # },
 ]
 
 LANGUAGE_CODE = "ru"
@@ -148,6 +136,7 @@ DJOSER = {
         "user_create": "accounts.serializers.CreateUserSerializer",
         "user": "accounts.serializers.CustomUserSerializer",
         "current_user": "accounts.serializers.CustomUserSerializer",
+        "user_update": "accounts.serializers.UpdateUserSerializer",
     },
     "PERMISSIONS": {
         "user": ["accounts.permissions.CurrentUserOrSuperUser"],
@@ -177,7 +166,7 @@ SPECTACULAR_SETTINGS = {
     \nФормат токена в header:
     \n\tAuthorization: Token <token>
     """,
-    "VERSION": "1.4.1",
+    "VERSION": "1.4.2",
     "SERVE_INCLUDE_SCHEMA": False,
     "PREPROCESSING_HOOKS": ["project.scheme.custom_preprocessing_hook"],
 }
