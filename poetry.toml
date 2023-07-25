@@ -1,0 +1,7 @@
+[virtualenvs]
+create = true
+in-project = false
+path = ".local"
+
+[installer]
+no-binary = ["pyodbc"]

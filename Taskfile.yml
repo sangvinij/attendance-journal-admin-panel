@@ -18,7 +18,7 @@ tasks:
         --verbose
         .
       - poetry run black .
-    desc: format code with autoflake, black, isort
+    desc: format code with autoflake, black
     dir: "{{.ROOT_DIR}}"
     platforms:
       - darwin
