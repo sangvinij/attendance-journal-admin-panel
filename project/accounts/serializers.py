@@ -139,6 +139,11 @@ class UpdateUserSerializer(serializers.ModelSerializer):
             except ValidationError as e:
                 raise serializers.ValidationError({"password": e.messages})
 
+        current_user = self.context["request"].user
+
+        if current_user.is_superuser and current_user.pk == instance.pk and "is_active" in validated_data:
+            raise serializers.ValidationError({"is_active": "Вы не можете изменить флаг is_active для себя"})
+
         instance.save()
         return instance
 

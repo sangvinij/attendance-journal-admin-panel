@@ -111,6 +111,10 @@ def mssql_fixture():
             ID=1, Prepod="Петров Петр Петрович", Email="piotr.petrovich@gmail.com", Napravlenie="Робототехника"
         )
         connection.execute(insert_data_query)
+        insert_data_query = tbl_prepods.insert().values(
+            ID=2, Prepod="Петров", Email="piotr.petrovich@gmail.com", Napravlenie=""
+        )
+        connection.execute(insert_data_query)
 
         insert_data_query = tbl_groups.insert().values(
             ID=1,
@@ -120,6 +124,16 @@ def mssql_fixture():
             PrepodId=1,
             Kurs="Алгоритмика",
             Napravlenie="Робототехника",
+        )
+        connection.execute(insert_data_query)
+        insert_data_query = tbl_groups.insert().values(
+            ID=2,
+            GroupName="MG1294749023",
+            KursID=2,
+            Prepod="Петров",
+            PrepodId=2,
+            Kurs="Алгоритмика",
+            Napravlenie="",
         )
         connection.execute(insert_data_query)
 
