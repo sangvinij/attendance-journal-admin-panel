@@ -26,12 +26,45 @@ class Names:
 
 
 def test_data_synchronization(mssql_fixture, superuser_credentials):
+    all_test_objects = []
     factory = RequestFactory()
     synchronization_url = f"{host}/api/refresh/"
 
     access_token = superuser_credentials["superuser_token"]
 
     headers = {"Authorization": f"Token {access_token}"}
+
+    valid_prepod = Prepod.objects.create(
+        id=1, fullname="Петров Петр Петрович", email="piotr.petrovich@gmail.com", direction="Робототехника"
+    )
+    all_test_objects.append(valid_prepod)
+
+    not_valid_prepod = Prepod.objects.create(
+        id=2, fullname="Невалидное_имя", email="piotr.petrovich@gmail.com", direction="Робототехника"
+    )
+    all_test_objects.append(not_valid_prepod)
+
+    group1 = Group.objects.create(
+        id=1,
+        study_groups="study_group1",
+        course_id=1,
+        teacher_fullname="Петров Петр Петрович",
+        teacher_id=1,
+        study_courses="study_courses1",
+        direction="Робототехника",
+    )
+    all_test_objects.append(group1)
+
+    group2 = Group.objects.create(
+        id=2,
+        study_groups="study_group2",
+        course_id=1,
+        teacher_fullname="Невалидное_имя",
+        teacher_id=2,
+        study_courses="study_courses2",
+        direction="Робототехника",
+    )
+    all_test_objects.append(group2)
 
     response = requests.get(synchronization_url, headers=headers)
     assert response.status_code == 200
@@ -44,26 +77,29 @@ def test_data_synchronization(mssql_fixture, superuser_credentials):
     assert groups_count == 2
     assert teachers_count == 1
 
-    synced_prepod = Prepod.objects.get(id=1)
-    assert synced_prepod.fullname == "Петров Петр Петрович"
-    assert synced_prepod.email == "piotr.petrovich@gmail.com"
-    assert synced_prepod.direction == "Робототехника"
-
-    synced_group = Group.objects.get(id=1)
-    assert synced_group.study_groups == "MG1294749022"
-    assert synced_group.course_id == 1
-    assert synced_group.teacher_fullname == "Петров Петр Петрович"
-    assert synced_group.teacher_id == 1
-    assert synced_group.study_courses == "Алгоритмика"
-    assert synced_group.direction == "Робототехника"
-
-    synced_user = User.objects.get(id_crm=1)
+    synced_user = User.objects.get(id_crm=valid_prepod.id)
     assert synced_user.first_name == "Петр"
     assert synced_user.last_name == "Петров"
     assert synced_user.middle_name == "Петрович"
     assert synced_user.email == "piotr.petrovich@gmail.com"
-    assert synced_user.study_groups == str(["MG1294749022"])
-    assert synced_user.study_courses == str(["Алгоритмика"])
+    assert synced_user.study_groups == str(["study_group1"])
+    assert synced_user.study_courses == str(["study_courses1"])
 
-    synced_user = User.objects.get(id_crm=1)
-    synced_user.delete()
+    valid_prepod.fullname = "Другой Петр Петрович"
+    valid_prepod.save()
+    group1.study_groups = "another_study_group1"
+    group1.save()
+
+    response = requests.get(synchronization_url, headers=headers)
+    assert response.status_code == 200
+
+    synced_user = User.objects.get(id_crm=valid_prepod.id)
+    assert synced_user.first_name == "Петр"
+    assert synced_user.last_name == "Другой"
+    assert synced_user.middle_name == "Петрович"
+    assert synced_user.email == "piotr.petrovich@gmail.com"
+    assert synced_user.study_groups == str(["another_study_group1"])
+    assert synced_user.study_courses == str(["study_courses1"])
+
+    for obj in all_test_objects:
+        obj.delete()
