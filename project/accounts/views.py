@@ -131,18 +131,19 @@ class MsSqlTableViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class RefreshPoint(APIView):
-    all_teachers_crm = Prepod.objects.all()
-    all_teachers_journal = User.objects.filter(is_teacher=1)
-    teacher_groups = Group.objects.all()
     permission_classes = [IsSuperUser]
 
     class Names:
         def __init__(self, fullname):
             list_names = fullname.split()
-            list_names += [""]
-            self.last_name = list_names[0]
-            self.first_name = list_names[1]
-            self.middle_name = list_names[2]
+            if len(list_names) == 2:
+                self.last_name = list_names[0]
+                self.first_name = list_names[1]
+                self.middle_name = ""
+            else:
+                self.last_name = list_names[0]
+                self.first_name = list_names[1]
+                self.middle_name = list_names[2]
 
     class Groups:
         def __init__(self, groups):
@@ -208,23 +209,26 @@ class RefreshPoint(APIView):
         return not inequality
 
     def get(self, request):
+        all_teachers_crm = Prepod.objects.all()
+        all_teachers_journal = User.objects.filter(is_teacher=1)
+        teacher_groups = Group.objects.all()
         new_teachers = []
         update_teachers = []
         redis_db_url = os.getenv("REDIS_DSN")
         storage = redis.from_url(redis_db_url)
 
-        all_teachers_journal_copy = self.all_teachers_journal.all()
+        all_teachers_journal_copy = all_teachers_journal.all()
         for teacher_of_journal in all_teachers_journal_copy:
-            if not self.all_teachers_crm.filter(id=teacher_of_journal.id_crm).exists():
+            if not all_teachers_crm.filter(id=teacher_of_journal.id_crm).exists():
                 try:
                     teacher_of_journal.delete()
                 except ValueError:
                     pass
 
         try:
-            for teacher in self.all_teachers_crm:
-                groups = self.teacher_groups.filter(teacher_id=teacher.id)
-                if not self.all_teachers_journal.filter(id_crm=teacher.id).exists():
+            for teacher in all_teachers_crm:
+                groups = teacher_groups.filter(teacher_id=teacher.id)
+                if not all_teachers_journal.filter(id_crm=teacher.id).exists():
                     if groups.filter(teacher_id=teacher.id).exists():
                         try:
                             new_teacher = self.user_object_create(teacher, groups)
@@ -232,7 +236,7 @@ class RefreshPoint(APIView):
                         except IndexError:
                             pass
                 else:
-                    user_for_upgrade = self.all_teachers_journal.get(id_crm=teacher.id)
+                    user_for_upgrade = all_teachers_journal.get(id_crm=teacher.id)
                     if not self.users_are_equal(user_for_upgrade, teacher, groups):
                         try:
                             upgraded_teacher = self.user_object_upgrade(teacher, user_for_upgrade, groups)
