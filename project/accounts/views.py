@@ -28,6 +28,7 @@ from .serializers import AuthSerializer, StudyFieldSerializer, PrepodsSerializer
 
 import os
 import redis
+import pytz
 from redis.exceptions import ConnectionError
 from dotenv import find_dotenv, load_dotenv
 from datetime import datetime
@@ -252,7 +253,7 @@ class RefreshPoint(APIView):
             update_teachers,
             ["first_name", "last_name", "middle_name", "email", "study_groups", "study_courses", "is_active"],
         )
-        time_now = datetime.now().strftime("%H:%M %d-%m-%Y")
+        time_now = datetime.now(pytz.timezone("Europe/Minsk")).strftime("%H:%M %d-%m-%Y")
         try:
             storage.set("last_sync", time_now)
         except ConnectionError:

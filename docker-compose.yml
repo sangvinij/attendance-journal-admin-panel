@@ -110,7 +110,27 @@ services:
     depends_on:
       db:
         condition: service_healthy
-      
+
+  scheduler:
+    container_name: iteen.scheduler
+    image: webapp:latest
+    environment:
+      REDIS_DSN: ${REDIS_DSN}
+      WEBAPP_HOST: ${WEBAPP_HOST}
+      DJANGO_SUPERUSER_USERNAME: ${DJANGO_SUPERUSER_USERNAME}
+      DJANGO_SUPERUSER_PASSWORD: ${DJANGO_SUPERUSER_PASSWORD}
+    networks:
+      - iteen
+    volumes:
+      - .local/services/apscheduler:/app/:ro
+    init: true
+    entrypoint: ["project/entrypoint-scheduler.sh"]
+    depends_on:
+      redis:
+        condition: service_started
+      webapp:
+        condition: service_started
+
 networks:
   iteen:
     name: iteen.network
