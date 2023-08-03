@@ -104,22 +104,11 @@ class UpdateUserSerializer(serializers.ModelSerializer):
         "is_superuser",
         "is_metodist",
         "is_active",
-        "email",
     }
 
-    NOT_TEACHER_FIELDS = {
-        "is_teacher",
-        "first_name",
-        "last_name",
-        "middle_name",
-    }
+    NOT_TEACHER_FIELDS = {"is_teacher", "first_name", "last_name", "middle_name", "email"}
 
     united_fields = sorted(TEACHER_FIELDS | NOT_TEACHER_FIELDS)
-
-    def validate(self, attrs):
-        if not attrs.get("email") and not self.instance.email:
-            raise serializers.ValidationError({"email": "Обязательное поле"})
-        return attrs
 
     def update(self, instance, validated_data):
         serializers.raise_errors_on_nested_writes("update", self, validated_data)

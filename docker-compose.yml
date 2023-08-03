@@ -2,15 +2,15 @@ version: '3.9'
 services:
 
   redis:
-    container_name: iteen.redis
+    container_name: iteen2.redis
     image: redis:7.0.12-alpine3.18
     networks:
-      - iteen
+      - iteen2
     restart: always
     ports:
       - '6379:6379'
     volumes:
-      - .local/data:/var/lib/redis/data
+      - .local/services/redis:/var/lib/redis/data
     init: true
     healthcheck:
       test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
@@ -20,10 +20,10 @@ services:
       start_period: 5s
 
   db:
-    container_name: iteen.db
+    container_name: iteen2.db
     image: postgres:15.2
     networks: 
-      - iteen
+      - iteen2
     restart: always
     ports:
       - '5432:5432'
@@ -32,7 +32,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
     volumes:
-      - .local/data:/var/lib/postgresql/data
+      - .local/services/db:/var/lib/postgresql/data
     init: true
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
@@ -42,26 +42,26 @@ services:
       start_period: 5s
 
   pgadmin:
-    container_name: iteen.pgadmin
+    container_name: iteen2.pgadmin
     image: dpage/pgadmin4:7.1
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
     volumes:
-      - .local/pgadmin:/var/lib/pgadmin
+      - .local/services/pgadmin:/var/lib/pgadmin
     ports:
       - "5050:80"
     restart: always
     networks:
-      - iteen
+      - iteen2
     depends_on:
       - db
 
   mssql_db:
-    container_name: iteen.mssql
+    container_name: iteen2.mssql
     image: mcr.microsoft.com/mssql/server:2017-latest
     networks: 
-      - iteen
+      - iteen2
     restart: always
     environment:
       - ACCEPT_EULA=Y
@@ -70,7 +70,7 @@ services:
     ports:
       - "1433:1433"
     volumes:
-      - .local/data:/var/lib/mssql/data
+      - .local/services/mssql:/var/lib/mssql/data
     init: true
     healthcheck:
       test: ["CMD", "/opt/mssql-tools/bin/sqlcmd", "-U", "sa", "-P", "${MSSQL_SA_PASSWORD}", "-Q", "SELECT 1"]
@@ -86,7 +86,7 @@ services:
         - PYTHON_VERSION=${WEBAPP_PYTHON_VERSION:-3.11}
         - VERSION=${WEBAPP_VERSION:-dev}
       context: .
-    container_name: iteen.webapp
+    container_name: iteen2.webapp
     image: webapp:latest
     environment:
       SECRET_KEY: ${SECRET_KEY}
@@ -100,19 +100,22 @@ services:
       MSSQL_DATABASE_PASSWORD: ${MSSQL_DATABASE_PASSWORD}
       MSSQL_DATABASE_PORT: ${MSSQL_DATABASE_PORT}
       MSSQL_DATABASE_USERNAME: ${MSSQL_DATABASE_USERNAME}
+      DJANGO_SUPERUSER_USERNAME: ${DJANGO_SUPERUSER_USERNAME}
+      DJANGO_SUPERUSER_PASSWORD: ${DJANGO_SUPERUSER_USERNAME}
+      HOST_FOR_TESTS: ${HOST_FOR_TESTS}
     networks:
-      - iteen
+      - iteen2
     ports:
       - "8000:8000"
     volumes:
-      - .local/:/app/:ro
+      - .local/services/webapp:/app/:ro
     init: true
     depends_on:
       db:
         condition: service_healthy
 
   scheduler:
-    container_name: iteen.scheduler
+    container_name: iteen2.scheduler
     image: webapp:latest
     environment:
       REDIS_DSN: ${REDIS_DSN}
@@ -120,7 +123,7 @@ services:
       DJANGO_SUPERUSER_USERNAME: ${DJANGO_SUPERUSER_USERNAME}
       DJANGO_SUPERUSER_PASSWORD: ${DJANGO_SUPERUSER_PASSWORD}
     networks:
-      - iteen
+      - iteen2
     volumes:
       - .local/services/apscheduler:/app/:ro
     init: true
@@ -132,6 +135,6 @@ services:
         condition: service_started
 
 networks:
-  iteen:
-    name: iteen.network
+  iteen2:
+    name: iteen2.network
     driver: bridge
