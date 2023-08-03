@@ -8,8 +8,8 @@ class TestUpdateUser:
         data = {
             "username": "test_updated_teacher",
             "password": "UpdatedPas1",
-            "email": "updateemail@example.com",
             "is_metodist": True,
+            "is_superuser": True,
         }
 
         rs = update_users_data(method="put", user_id=teacher["id"], superuser_token=superuser_token, **data)
@@ -19,8 +19,8 @@ class TestUpdateUser:
         updated_data = rs.json()
 
         assert updated_data["username"] == data["username"]
-        assert updated_data["email"] == data["email"]
         assert updated_data["is_metodist"] == data["is_metodist"]
+        assert updated_data["is_superuser"] == data["is_superuser"]
 
     def test_update_teacher_with_wrong_date(self, teacher, superuser_credentials):
         superuser_token = superuser_credentials["superuser_token"]
@@ -42,12 +42,12 @@ class TestUpdateUser:
         updated_data = rs.json()
 
         assert updated_data["username"] == data["username"]
-        assert updated_data["email"] == data["email"]
         assert updated_data["is_metodist"] == data["is_metodist"]
 
         assert updated_data["first_name"] == teacher["first_name"]
         assert updated_data["last_name"] == teacher["last_name"]
         assert updated_data["middle_name"] == teacher["middle_name"]
+        assert updated_data["email"] == teacher["email"]
 
         rs2 = update_users_data(
             method="patch", user_id=teacher["id"], superuser_token=superuser_token, first_name=data["first_name"]

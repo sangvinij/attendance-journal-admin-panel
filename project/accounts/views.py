@@ -218,14 +218,6 @@ class RefreshPoint(APIView):
         redis_db_url = os.getenv("REDIS_DSN")
         storage = redis.from_url(redis_db_url)
 
-        all_teachers_journal_copy = all_teachers_journal.all()
-        for teacher_of_journal in all_teachers_journal_copy:
-            if not all_teachers_crm.filter(id=teacher_of_journal.id_crm).exists():
-                try:
-                    teacher_of_journal.delete()
-                except ValueError:
-                    pass
-
         try:
             for teacher in all_teachers_crm:
                 groups = teacher_groups.filter(teacher_id=teacher.id)

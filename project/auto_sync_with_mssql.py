@@ -16,8 +16,8 @@ def sync_scheduler():
     redis_db_url = os.getenv("REDIS_DSN")
     storage = redis.from_url(redis_db_url)
     webapp_host = os.getenv("WEBAPP_HOST")
-    django_superuser_username = os.getenv("DJANGO_SUPERUSER_USERNAME")
-    django_superuser_password = os.getenv("DJANGO_SUPERUSER_PASSWORD")
+    django_superuser_username = os.getenv("DJANGO_SUPERUSER_USERNAME", "Iteen.Admin")
+    django_superuser_password = os.getenv("DJANGO_SUPERUSER_PASSWORD", "Admin1Admin1")
     try:
         response = requests.post(
             f"{webapp_host}/auth/token/login/",
