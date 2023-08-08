@@ -4,6 +4,22 @@ output: 'prefixed'
 
 tasks:
 
+  clean:
+    cmds:
+      - docker compose down --remove-orphans || exit 0
+      - rm -rf "{{.DIR_LOCAL}}/data"
+      - rm -rf "{{.DIR_LOCAL}}/mypy"
+      - rm -rf "{{.DIR_LOCAL}}/ok*"
+      - rm -rf "{{.DIR_LOCAL}}/pgadmin"
+      - rm -rf "{{.DIR_LOCAL}}/services"
+      - rm -rf "{{.DIR_LOCAL}}/standalone"
+      - rm -rf "{{.ROOT_DIR}}/.pytest_cache"
+    desc: cleans dev environment, removes containers, volumes, caches
+    dir: "{{.ROOT_DIR}}"
+    platforms:
+      - darwin
+      - linux
+
   code-format:
     cmds:
       - >
@@ -147,7 +163,7 @@ tasks:
     preconditions:
       - docker info
     run: once
-
+  
   docker-up:
     cmds:
       - docker compose up --detach --remove-orphans --wait {{.CLI_ARGS}}

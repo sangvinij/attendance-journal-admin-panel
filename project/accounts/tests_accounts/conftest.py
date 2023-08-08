@@ -72,12 +72,13 @@ def teacher(superuser_credentials):
 @pytest.fixture(scope="session")
 def mssql_fixture():
     server = os.environ.get("MSSQL_DATABASE_HOST")
+    port = os.environ.get("MSSQL_DATABASE_PORT")
     database = os.environ.get("MSSQL_DATABASE_NAME")
     username = os.environ.get("MSSQL_DATABASE_USERNAME")
     password = os.environ.get("MSSQL_DATABASE_PASSWORD")
     driver = "ODBC Driver 18 for SQL Server"
 
-    connection_string = f"DRIVER={{{driver}}};SERVER={server};DATABASE={database};UID={username};PWD={password};TrustServerCertificate=yes"
+    connection_string = f"DRIVER={{{driver}}};SERVER={server},{port};DATABASE={database};UID={username};PWD={password};TrustServerCertificate=yes"
     engine = create_engine(f"mssql+pyodbc:///?odbc_connect={connection_string}")
 
     metadata = MetaData()

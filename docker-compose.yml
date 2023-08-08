@@ -65,15 +65,15 @@ services:
     restart: always
     environment:
       - ACCEPT_EULA=Y
-      - MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD}
-      - MSSQL_PID=${MSSQL_PID}
+      - MSSQL_SA_PASSWORD=${MSSQL_DATABASE_PASSWORD}
+      - MSSQL_PID=Developer
     ports:
       - "1433:1433"
     volumes:
       - .local/services/mssql:/var/lib/mssql/data
     init: true
     healthcheck:
-      test: ["CMD", "/opt/mssql-tools/bin/sqlcmd", "-U", "sa", "-P", "${MSSQL_SA_PASSWORD}", "-Q", "SELECT 1"]
+      test: ["CMD", "/opt/mssql-tools/bin/sqlcmd", "-U", "sa", "-P", "${MSSQL_DATABASE_PASSWORD}", "-Q", "SELECT 1"]
       interval: 10s
       timeout: 5s
       retries: 3
