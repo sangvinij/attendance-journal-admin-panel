@@ -49,6 +49,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = "username"
     REQUIRED_FIELDS = ["first_name", "last_name", "middle_name"]
 
+    username.error_messages = {"unique": "Такой логин уже существует. Измените логин."}
+
     def __str__(self):
         return self.username
 

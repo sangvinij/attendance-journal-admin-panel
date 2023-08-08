@@ -26,7 +26,6 @@ class Names:
 
 
 def test_data_synchronization(mssql_fixture, superuser_credentials):
-    all_test_objects = []
     factory = RequestFactory()
     synchronization_url = f"{host}/api/refresh/"
 
@@ -37,12 +36,10 @@ def test_data_synchronization(mssql_fixture, superuser_credentials):
     valid_prepod = Prepod.objects.create(
         id=1, fullname="Петров Петр Петрович", email="piotr.petrovich@gmail.com", direction="Робототехника"
     )
-    all_test_objects.append(valid_prepod)
 
     not_valid_prepod = Prepod.objects.create(
         id=2, fullname="Невалидное_имя", email="piotr.petrovich@gmail.com", direction="Робототехника"
     )
-    all_test_objects.append(not_valid_prepod)
 
     group1 = Group.objects.create(
         id=1,
@@ -53,7 +50,6 @@ def test_data_synchronization(mssql_fixture, superuser_credentials):
         study_courses="study_courses1",
         direction="Робототехника",
     )
-    all_test_objects.append(group1)
 
     group2 = Group.objects.create(
         id=2,
@@ -64,7 +60,6 @@ def test_data_synchronization(mssql_fixture, superuser_credentials):
         study_courses="study_courses2",
         direction="Робототехника",
     )
-    all_test_objects.append(group2)
 
     response = requests.get(synchronization_url, headers=headers)
     assert response.status_code == 200
@@ -101,5 +96,6 @@ def test_data_synchronization(mssql_fixture, superuser_credentials):
     assert synced_user.study_groups == str(["another_study_group1"])
     assert synced_user.study_courses == str(["study_courses1"])
 
-    for obj in all_test_objects:
-        obj.delete()
+    Prepod.objects.all().delete()
+    Group.objects.all().delete()
+    User.objects.filter(is_teacher=1).delete()

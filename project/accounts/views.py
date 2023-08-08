@@ -1,10 +1,9 @@
 from itertools import groupby
 
-from django.db.models import Case, Min, OuterRef, Q, Subquery, When
-from django.http import HttpResponse, JsonResponse
+from django.db.models import Q
+from django.http import JsonResponse
 from django.utils import timezone
 from django.db.utils import OperationalError, InterfaceError, IntegrityError
-from django.views import generic
 
 from djoser.conf import settings
 from djoser.views import UserViewSet as DjoserViewSet
@@ -14,7 +13,7 @@ from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiPara
 from knox.models import AuthToken
 from knox.views import LoginView as KnoxLoginView
 
-from rest_framework import filters, permissions, status, viewsets, exceptions
+from rest_framework import filters, permissions, status, viewsets
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -137,14 +136,14 @@ class RefreshPoint(APIView):
     class Names:
         def __init__(self, fullname):
             list_names = fullname.split()
-            if len(list_names) == 2:
-                self.last_name = list_names[0]
-                self.first_name = list_names[1]
-                self.middle_name = ""
-            else:
+            if len(list_names) > 2:
                 self.last_name = list_names[0]
                 self.first_name = list_names[1]
                 self.middle_name = list_names[2]
+            else:
+                self.last_name = list_names[0]
+                self.first_name = list_names[1]
+                self.middle_name = ""
 
     class Groups:
         def __init__(self, groups):
@@ -220,22 +219,19 @@ class RefreshPoint(APIView):
 
         try:
             for teacher in all_teachers_crm:
+                if len(teacher.fullname.split()) < 2:
+                    continue
+
                 groups = teacher_groups.filter(teacher_id=teacher.id)
                 if not all_teachers_journal.filter(id_crm=teacher.id).exists():
                     if groups.filter(teacher_id=teacher.id).exists():
-                        try:
-                            new_teacher = self.user_object_create(teacher, groups)
-                            new_teachers.append(new_teacher)
-                        except IndexError:
-                            pass
+                        new_teacher = self.user_object_create(teacher, groups)
+                        new_teachers.append(new_teacher)
                 else:
                     user_for_upgrade = all_teachers_journal.get(id_crm=teacher.id)
                     if not self.users_are_equal(user_for_upgrade, teacher, groups):
-                        try:
-                            upgraded_teacher = self.user_object_upgrade(teacher, user_for_upgrade, groups)
-                            update_teachers.append(upgraded_teacher)
-                        except IndexError:
-                            pass
+                        upgraded_teacher = self.user_object_upgrade(teacher, user_for_upgrade, groups)
+                        update_teachers.append(upgraded_teacher)
 
         except (OperationalError, InterfaceError, IntegrityError) as error:
             return JsonResponse({"Error": str(error)}, safe=False, status=418)
