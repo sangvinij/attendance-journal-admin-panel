@@ -72,7 +72,3 @@ jobs:
             
       - name: Run tests
         run: docker exec -it journal.webapp bash run-test.sh
-
-
-
-
