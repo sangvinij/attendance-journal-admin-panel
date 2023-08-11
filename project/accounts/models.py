@@ -6,8 +6,8 @@ from django.db import models
 
 from dotenv import find_dotenv, load_dotenv
 
-from redis.exceptions import ConnectionError
 import redis
+from redis.exceptions import ConnectionError
 
 load_dotenv(find_dotenv())
 
