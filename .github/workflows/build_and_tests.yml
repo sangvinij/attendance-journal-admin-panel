@@ -60,9 +60,7 @@ jobs:
         run: docker-compose up -d
             
       - name: Run tests
-        run: | 
-            docker exec -it journal.webapp bash
-            run-test.sh
+        run: docker exec -it journal.webapp bash run-test.sh
 
       - name: stop services
         run: docker-compose stop
