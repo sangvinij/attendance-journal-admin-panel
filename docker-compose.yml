@@ -82,7 +82,7 @@ services:
     build:
       args:
         - PIP_VERSION=${WEBAPP_PIP_VERSION:-23.1.2}
-        - POETRY_VERSION=${WEBAPP_POETRY_VERSION:-1.4.2}
+        - POETRY_VERSION=${WEBAPP_POETRY_VERSION:-1.5.1}
         - PYTHON_VERSION=${WEBAPP_PYTHON_VERSION:-3.11}
         - VERSION=${WEBAPP_VERSION:-dev}
       context: .
@@ -135,6 +135,6 @@ services:
         condition: service_started
 
 networks:
-  iteen2:
+  journal:
     name: journal.network
     driver: bridge
