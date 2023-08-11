@@ -2,10 +2,10 @@ version: '3.9'
 services:
 
   redis:
-    container_name: iteen2.redis
+    container_name: journal.redis
     image: redis:7.0.12-alpine3.18
     networks:
-      - iteen2
+      - journal
     restart: always
     ports:
       - '6379:6379'
@@ -20,7 +20,7 @@ services:
       start_period: 5s
 
   db:
-    container_name: iteen2.db
+    container_name: journal.db
     image: postgres:15.2
     networks: 
       - iteen2
@@ -42,7 +42,7 @@ services:
       start_period: 5s
 
   pgadmin:
-    container_name: iteen2.pgadmin
+    container_name: journal.pgadmin
     image: dpage/pgadmin4:7.1
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
@@ -53,15 +53,15 @@ services:
       - "5050:80"
     restart: always
     networks:
-      - iteen2
+      - journal
     depends_on:
       - db
 
   mssql_db:
-    container_name: iteen2.mssql
+    container_name: journal.mssql
     image: mcr.microsoft.com/mssql/server:2017-latest
     networks: 
-      - iteen2
+      - journal
     restart: always
     environment:
       - ACCEPT_EULA=Y
@@ -86,7 +86,7 @@ services:
         - PYTHON_VERSION=${WEBAPP_PYTHON_VERSION:-3.11}
         - VERSION=${WEBAPP_VERSION:-dev}
       context: .
-    container_name: iteen2.webapp
+    container_name: journal.webapp
     image: webapp:latest
     environment:
       SECRET_KEY: ${SECRET_KEY}
@@ -104,7 +104,7 @@ services:
       DJANGO_SUPERUSER_PASSWORD: ${DJANGO_SUPERUSER_USERNAME}
       HOST_FOR_TESTS: ${HOST_FOR_TESTS}
     networks:
-      - iteen2
+      - journal
     ports:
       - "8000:8000"
     volumes:
@@ -115,7 +115,7 @@ services:
         condition: service_healthy
 
   scheduler:
-    container_name: iteen2.scheduler
+    container_name: journal.scheduler
     image: webapp:latest
     environment:
       REDIS_DSN: ${REDIS_DSN}
@@ -123,7 +123,7 @@ services:
       DJANGO_SUPERUSER_USERNAME: ${DJANGO_SUPERUSER_USERNAME}
       DJANGO_SUPERUSER_PASSWORD: ${DJANGO_SUPERUSER_PASSWORD}
     networks:
-      - iteen2
+      - journal
     volumes:
       - .local/services/apscheduler:/app/:ro
     init: true
@@ -136,5 +136,5 @@ services:
 
 networks:
   iteen2:
-    name: iteen2.network
+    name: journal.network
     driver: bridge

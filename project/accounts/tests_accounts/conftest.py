@@ -12,8 +12,8 @@ load_dotenv()
 
 @pytest.fixture(scope="session")
 def superuser_credentials():
-    superuser_username = os.getenv("DJANGO_SUPERUSER_USERNAME", "Iteen.Admin")
-    superuser_password = os.getenv("DJANGO_SUPERUSER_PASSWORD", "Admin1Admin1")
+    superuser_username = os.getenv("DJANGO_SUPERUSER_USERNAME")
+    superuser_password = os.getenv("DJANGO_SUPERUSER_PASSWORD")
     superuser_token = create_token(username=superuser_username, password=superuser_password).json()["auth_token"]
 
     yield {
