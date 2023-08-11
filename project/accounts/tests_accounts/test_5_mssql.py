@@ -36,13 +36,13 @@ def test_data_synchronization(mssql_fixture, superuser_credentials):
     headers = {"Authorization": f"Token {access_token}"}
 
     valid_prepod = Prepod.objects.create(
-        id=1, fullname="Петров Петр Петрович", email="piotr.petrovich@gmail.com", direction="Робототехника"
+        prepod_id=1, fullname="Петров Петр Петрович", email="piotr.petrovich@gmail.com", direction="Робототехника"
     )
 
-    Prepod.objects.create(id=2, fullname="Невалидное_имя", email="piotr.petrovich@gmail.com", direction="Робототехника")
+    Prepod.objects.create(prepod_id=2, fullname="Невалидное_имя", email="piotr.petrovich@gmail.com", direction="Робототехника")
 
     group1 = Group.objects.create(
-        id=1,
+        group_id=1,
         study_groups="study_group1",
         course_id=1,
         teacher_fullname="Петров Петр Петрович",
@@ -52,7 +52,7 @@ def test_data_synchronization(mssql_fixture, superuser_credentials):
     )
 
     Group.objects.create(
-        id=2,
+        group_id=2,
         study_groups="study_group2",
         course_id=1,
         teacher_fullname="Невалидное_имя",
