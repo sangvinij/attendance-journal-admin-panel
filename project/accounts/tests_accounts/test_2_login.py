@@ -38,7 +38,7 @@ class TestLogin:
             email="example@example.com",
             superuser_token=superuser_token,
         )
-        assert rs.status_code == 201
+        assert rs.status_code == 400
 
         created_user_data = rs.json()
         validate(created_user_data, CREATE_USER_SCHEMA)

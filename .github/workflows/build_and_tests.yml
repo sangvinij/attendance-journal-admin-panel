@@ -57,7 +57,7 @@ jobs:
             DJANGO_SUPERUSER_USERNAME: ${{ secrets.DJANGO_SUPERUSER_USERNAME }}
             DJANGO_SUPERUSER_PASSWORD: ${{ secrets.DJANGO_SUPERUSER_USERNAME }}
             HOST_FOR_TESTS: ${{ secrets.HOST_FOR_TESTS }}
-        run: docker-compose up
+        run: docker-compose up -d
             
       - name: Run tests
         run: docker exec journal.webapp bash run-test.sh
