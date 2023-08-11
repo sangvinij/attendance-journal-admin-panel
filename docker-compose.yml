@@ -23,7 +23,7 @@ services:
     container_name: journal.db
     image: postgres:15.2
     networks: 
-      - iteen2
+      - journal
     restart: always
     ports:
       - '5432:5432'
