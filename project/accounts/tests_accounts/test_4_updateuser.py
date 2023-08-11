@@ -1,4 +1,4 @@
-from .api_requests import update_users_data, create_token
+from .api_requests import create_token, update_users_data
 
 
 class TestUpdateUser:

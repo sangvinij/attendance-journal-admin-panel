@@ -1,17 +1,26 @@
+import os
+from datetime import datetime
 from itertools import groupby
 
 from django.db.models import Q
+from django.db.utils import IntegrityError, InterfaceError, OperationalError
 from django.http import JsonResponse
 from django.utils import timezone
-from django.db.utils import OperationalError, InterfaceError, IntegrityError
 
 from djoser.conf import settings
 from djoser.views import UserViewSet as DjoserViewSet
 
-from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter
+from dotenv import find_dotenv, load_dotenv
+
+from drf_spectacular.utils import OpenApiParameter, extend_schema, extend_schema_view
 
 from knox.models import AuthToken
 from knox.views import LoginView as KnoxLoginView
+
+import pytz
+
+import redis
+from redis.exceptions import ConnectionError
 
 from rest_framework import filters, permissions, status, viewsets
 from rest_framework.pagination import PageNumberPagination
@@ -21,16 +30,10 @@ from rest_framework.views import APIView
 from transliterate import translit
 
 from .enums import StudyFieldOrder
-from .models import StudyField, Prepod, User, Group
+from .models import Group, Prepod, StudyField, User
 from .permissions import IsSuperUser
-from .serializers import AuthSerializer, StudyFieldSerializer, PrepodsSerializer
+from .serializers import AuthSerializer, PrepodsSerializer, StudyFieldSerializer
 
-import os
-import redis
-import pytz
-from redis.exceptions import ConnectionError
-from dotenv import find_dotenv, load_dotenv
-from datetime import datetime
 
 load_dotenv(find_dotenv())
 
@@ -40,7 +43,7 @@ class LoginView(KnoxLoginView):
     permission_classes = (permissions.AllowAny,)
     serializer_class = AuthSerializer
 
-    def post(self, request, format=None):
+    def post(self, request, form=None):
         serializer = self.serializer_class(data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data["user"]
@@ -87,8 +90,8 @@ class UserViewSet(DjoserViewSet):
         queryset = self.queryset
         if settings.HIDE_USERS and self.action == "list" and not user.is_superuser:
             queryset = queryset.filter(pk=user.pk)
-        role = self.request.query_params.get("role", None)
-        sort_by = self.request.query_params.get("sort_by", None)
+        role = self.request.query_params.get("role")
+        sort_by = self.request.query_params.get("sort_by")
 
         if role is not None:
             queryset = queryset.filter(Q(is_superuser=True) | Q(is_teacher=True) | Q(is_metodist=True))
@@ -148,12 +151,12 @@ class RefreshPoint(APIView):
     class Groups:
         def __init__(self, groups):
             self.study_groups = []
-            for g in groups:
-                self.study_groups += [g.study_groups]
+            for group in groups:
+                self.study_groups += [group.study_groups]
             self.study_courses = []
-            for c in groups:
-                if c.study_courses:
-                    self.study_courses += [c.study_courses]
+            for course in groups:
+                if course.study_courses:
+                    self.study_courses += [course.study_courses]
             self.study_courses = [el for el, _ in groupby(self.study_courses)]
 
     def username_generator(self, names, id_crm: int | str):

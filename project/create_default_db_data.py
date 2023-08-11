@@ -1,5 +1,9 @@
+import contextlib
+
 import django
+
 import os
+
 from dotenv import find_dotenv, load_dotenv
 
 os.environ["DJANGO_SETTINGS_MODULE"] = "project.settings"
@@ -10,8 +14,8 @@ load_dotenv(find_dotenv())
 if not settings.configured:
     django.setup()
 
-from accounts.models import User
 from accounts.models import StudyField
+from accounts.models import User
 
 
 def create_superuser_for_adminpanel():
@@ -34,10 +38,8 @@ def create_study_fields():
 
 
 if __name__ == "__main__":
-    try:
+    with contextlib.suppress(django.db.utils.IntegrityError):
         create_superuser_for_adminpanel()
-    except django.db.utils.IntegrityError:
-        print("User already exist!")
 
     all_fields = StudyField.objects.all()
     if len(all_fields) == 0:

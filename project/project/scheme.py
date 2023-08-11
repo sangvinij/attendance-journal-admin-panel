@@ -1,5 +1,6 @@
-from drf_spectacular.extensions import OpenApiAuthenticationExtension
 from django.conf import settings
+
+from drf_spectacular.extensions import OpenApiAuthenticationExtension
 
 
 class KnoxTokenScheme(OpenApiAuthenticationExtension):

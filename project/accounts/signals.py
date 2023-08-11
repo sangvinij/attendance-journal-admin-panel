@@ -1,10 +1,10 @@
-from django.dispatch import receiver
-from django.contrib.auth import get_user_model
-from django.db.models.signals import post_save, post_delete, pre_save
-
+from axes.models import AccessAttempt
 from axes.signals import user_locked_out
 from axes.utils import reset
-from axes.models import AccessAttempt
+
+from django.contrib.auth import get_user_model
+from django.db.models.signals import post_delete, post_save, pre_save
+from django.dispatch import receiver
 
 from rest_framework import status
 from rest_framework.exceptions import Throttled

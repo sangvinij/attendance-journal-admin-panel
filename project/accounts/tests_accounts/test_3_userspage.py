@@ -1,13 +1,13 @@
-from .api_requests import host, get_detailed_info_about_user
-
 import requests
+
+from .api_requests import get_detailed_info_about_user, host
 
 
 class TestUserModel:
     API_URL = f"{host}/auth/users/"
 
     def response_to_api_url(self, token, **kwargs):
-        rs = requests.get(self.API_URL, params=kwargs, headers={"Authorization": f"Token {token}"})
+        rs = requests.get(self.API_URL, params=kwargs, headers={"Authorization": f"Token {token}"}, timeout=5)
         return rs
 
     def test_unauthorized_request_to_endpoint(self):

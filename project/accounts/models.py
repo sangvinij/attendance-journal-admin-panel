@@ -1,16 +1,17 @@
+import os
+
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
 from django.db import models
-from typing import Any
+
+from dotenv import find_dotenv, load_dotenv
 
 import redis
-import os
-from dotenv import find_dotenv, load_dotenv
 from redis.exceptions import ConnectionError
 
 load_dotenv(find_dotenv())
 
-from .managers import UserManager, MssqlManager
+from .managers import MssqlManager, UserManager
 
 
 class StudyField(models.Model):

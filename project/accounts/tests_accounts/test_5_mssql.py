@@ -1,5 +1,7 @@
 import os
+
 import django
+
 import requests
 
 from dotenv import load_dotenv
@@ -7,9 +9,9 @@ from dotenv import load_dotenv
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "project.settings")
 django.setup()
 
-from django.test import RequestFactory
-from accounts.views import RefreshPoint
 from accounts.models import Group, Prepod, User
+
+from django.test import RequestFactory
 
 load_dotenv()
 
@@ -26,7 +28,7 @@ class Names:
 
 
 def test_data_synchronization(mssql_fixture, superuser_credentials):
-    factory = RequestFactory()
+    RequestFactory()
     synchronization_url = f"{host}/api/refresh/"
 
     access_token = superuser_credentials["superuser_token"]
@@ -37,9 +39,7 @@ def test_data_synchronization(mssql_fixture, superuser_credentials):
         id=1, fullname="Петров Петр Петрович", email="piotr.petrovich@gmail.com", direction="Робототехника"
     )
 
-    not_valid_prepod = Prepod.objects.create(
-        id=2, fullname="Невалидное_имя", email="piotr.petrovich@gmail.com", direction="Робототехника"
-    )
+    Prepod.objects.create(id=2, fullname="Невалидное_имя", email="piotr.petrovich@gmail.com", direction="Робототехника")
 
     group1 = Group.objects.create(
         id=1,
@@ -51,7 +51,7 @@ def test_data_synchronization(mssql_fixture, superuser_credentials):
         direction="Робототехника",
     )
 
-    group2 = Group.objects.create(
+    Group.objects.create(
         id=2,
         study_groups="study_group2",
         course_id=1,
@@ -61,7 +61,7 @@ def test_data_synchronization(mssql_fixture, superuser_credentials):
         direction="Робототехника",
     )
 
-    response = requests.get(synchronization_url, headers=headers)
+    response = requests.get(synchronization_url, headers=headers, timeout=5)
     assert response.status_code == 200
 
     prepods_count = Prepod.objects.count()
@@ -85,7 +85,7 @@ def test_data_synchronization(mssql_fixture, superuser_credentials):
     group1.study_groups = "another_study_group1"
     group1.save()
 
-    response = requests.get(synchronization_url, headers=headers)
+    response = requests.get(synchronization_url, headers=headers, timeout=5)
     assert response.status_code == 200
 
     synced_user = User.objects.get(id_crm=valid_prepod.id)

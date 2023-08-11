@@ -1,7 +1,12 @@
 [flake8]
-ignore = S101,B101,W503,Q000
+ignore = S101, S105, S106, B101, W503, Q000, E402, JS101, JS102
+per-file-ignores =
+    project/auto_sync_with_mssql.py: T201
+    project/create_default_db_data.py: I100
+    project/accounts/tests_accounts/test_5_mssql.py: I100
+    project/accounts/apps.py: F401
 max-line-length = 120
-max_cognitive_complexity = 12
+max_cognitive_complexity = 14
 exclude =
     .artifacts
     .git
