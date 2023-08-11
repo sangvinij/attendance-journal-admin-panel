@@ -8,41 +8,55 @@ on:
       - main
 
 jobs:
+  test_formatting:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3.3.0
+
+      - name: Setup Python
+        uses: actions/setup-python@v4.5.0
+
+        with:
+          python-version: "3.11.3"
+
+      - name: Setup Poetry
+        uses: Gr1N/setup-poetry@v8
+        with:
+          poetry-version: '1.5.1'
+
+      - name: Install requirements
+        run: poetry install
+
+      - name: Run black
+        run: poetry run black . --check
+
   build-and-tests:
     runs-on: ubuntu-latest
     steps:
-        - name: Checkout
-          uses: actions/checkout@v3.3.0
+        - name: run primary_db
+          run:  docker-compose up db
+          env:
+            POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+            POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+            POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
 
-        - name: Setup Python
-          uses: actions/setup-python@v4.5.0
+        - name: run mssql_db
+          run: docker-compose up mssql_db
+          env:
+            ACCEPT_EULA: Y
+            MSSQL_SA_PASSWORD: ${{ secrets.MSSQL_DATABASE_PASSWORD }}
+            MSSQL_PID: Developer
 
-          with:
-              python-version: "3.11.3"
+        - name: run redis
+          run: docker-compose up redis
 
-        - name: Setup Poetry
-          uses: Gr1N/setup-poetry@v8
-          with:
-            poetry-version: '1.5.1'
-
-        - name: Install requirements
-          run: poetry install
-
-        - name: Run black
-          run: poetry run black . --check
-
-        - name: Build project
+        - name: run webapp
           env:
               PIP_VERSION: ${{ secrets.WEBAPP_PIP_VERSION || '23.1.2' }}
               POETRY_VERSION: ${{ secrets.WEBAPP_POETRY_VERSION || '1.5.1' }}
               PYTHON_VERSION: ${{ secrets.WEBAPP_PYTHON_VERSION || '3.11.3' }}
               VERSION: ${{ secrets.WEBAPP_VERSION || 'dev' }}
-              POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-              POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-              POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
-              ACCEPT_EULA: Y
-              MSSQL_SA_PASSWORD: ${{ secrets.MSSQL_DATABASE_PASSWORD }}
-              MSSQL_PID: Developer
               SECRET_KEY: ${{ secrets.SECRET_KEY }}
               PRIMARY_DATABASE_URL: ${{ secrets.PRIMARY_DATABASE_URL }}
               DEBUG_MODE: ${{ secrets.DEBUG_MODE }}
@@ -58,15 +72,10 @@ jobs:
               DJANGO_SUPERUSER_PASSWORD: ${{ secrets.DJANGO_SUPERUSER_USERNAME }}
               HOST_FOR_TESTS: ${{ secrets.HOST_FOR_TESTS }}
 
-          run: |
-              docker-compose up db
-              docker-compose up mssql_db
-              docker-compose up redis
-              docker-compose up webapp
+          run: docker-compose up webapp
             
         - name: Run tests
-          run: |
-              docker exec -it journal.webapp bash run-test.sh
+          run: docker exec -it journal.webapp bash run-test.sh
 
 
 
