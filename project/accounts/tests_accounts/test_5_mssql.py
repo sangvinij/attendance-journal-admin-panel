@@ -39,7 +39,9 @@ def test_data_synchronization(mssql_fixture, superuser_credentials):
         prepod_id=1, fullname="Петров Петр Петрович", email="piotr.petrovich@gmail.com", direction="Робототехника"
     )
 
-    Prepod.objects.create(prepod_id=2, fullname="Невалидное_имя", email="piotr.petrovich@gmail.com", direction="Робототехника")
+    Prepod.objects.create(
+        prepod_id=2, fullname="Невалидное_имя", email="piotr.petrovich@gmail.com", direction="Робототехника"
+    )
 
     group1 = Group.objects.create(
         group_id=1,
@@ -72,7 +74,7 @@ def test_data_synchronization(mssql_fixture, superuser_credentials):
     assert groups_count == 2
     assert teachers_count == 1
 
-    synced_user = User.objects.get(id_crm=valid_prepod.id)
+    synced_user = User.objects.get(id_crm=valid_prepod.prepod_id)
     assert synced_user.first_name == "Петр"
     assert synced_user.last_name == "Петров"
     assert synced_user.middle_name == "Петрович"
@@ -88,7 +90,7 @@ def test_data_synchronization(mssql_fixture, superuser_credentials):
     response = requests.get(synchronization_url, headers=headers, timeout=5)
     assert response.status_code == 200
 
-    synced_user = User.objects.get(id_crm=valid_prepod.id)
+    synced_user = User.objects.get(id_crm=valid_prepod.prepod_id)
     assert synced_user.first_name == "Петр"
     assert synced_user.last_name == "Другой"
     assert synced_user.middle_name == "Петрович"
