@@ -32,24 +32,24 @@ jobs:
         run: poetry run black . --check
 
       - name: run primary_db
-        run: docker-compose up db
+        run: docker-compose up -d db
         env:
             POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
             POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
             POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
 
       - name: run mssql_db
-        run: docker-compose up mssql_db
+        run: docker-compose up -d mssql_db
         env:
             ACCEPT_EULA: Y
             MSSQL_SA_PASSWORD: ${{ secrets.MSSQL_DATABASE_PASSWORD }}
             MSSQL_PID: Developer
 
       - name: run redis
-        run: docker-compose up redis
+        run: docker-compose up -d redis
 
       - name: run webapp
-        run: docker-compose up webapp
+        run: docker-compose up -d webapp
         env:
             PIP_VERSION: ${{ secrets.WEBAPP_PIP_VERSION || '23.1.2' }}
             POETRY_VERSION: ${{ secrets.WEBAPP_POETRY_VERSION || '1.5.1' }}
@@ -72,3 +72,6 @@ jobs:
             
       - name: Run tests
         run: docker exec -it journal.webapp bash run-test.sh
+
+      - name: stop services
+        run: docker-compose stop
