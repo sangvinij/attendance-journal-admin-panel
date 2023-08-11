@@ -6,8 +6,8 @@ from django.db import models
 
 from dotenv import find_dotenv, load_dotenv
 
-import redis
 from redis.exceptions import ConnectionError
+import redis
 
 load_dotenv(find_dotenv())
 
@@ -72,7 +72,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 class Prepod(models.Model):
-    id = models.AutoField(db_column="ID", primary_key=True)
+    prepod_id = models.AutoField(db_column="ID", primary_key=True)
     fullname = models.CharField("ФИО", db_column="Prepod", max_length=255)
     email = models.CharField("email", db_column="Email", max_length=255)
     direction = models.CharField("Направления", db_column="Napravlenie", max_length=255)
@@ -88,7 +88,7 @@ class Prepod(models.Model):
 
 
 class Group(models.Model):
-    id = models.AutoField(db_column="ID", primary_key=True)
+    group_id = models.AutoField(db_column="ID", primary_key=True)
     study_groups = models.CharField("Группа", db_column="GroupName", unique=True, max_length=255, blank=True, null=True)
     course_id = models.IntegerField("id курса", db_column="KursID", blank=True, null=True)
     teacher_fullname = models.CharField("Преподаватель", db_column="Prepod", max_length=255)

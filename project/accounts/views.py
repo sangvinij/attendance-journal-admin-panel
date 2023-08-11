@@ -168,7 +168,7 @@ class RefreshPoint(APIView):
         groups_of_teacher = self.Groups(groups)
         names = self.Names(teacher.fullname)
         email = teacher.email.split("; ", 1)[0]
-        id_crm = teacher.id
+        id_crm = teacher.prepod_id
         username = self.username_generator(names, id_crm)
 
         new_teacher = User(
@@ -225,13 +225,13 @@ class RefreshPoint(APIView):
                 if len(teacher.fullname.split()) < 2:
                     continue
 
-                groups = teacher_groups.filter(teacher_id=teacher.id)
-                if not all_teachers_journal.filter(id_crm=teacher.id).exists():
-                    if groups.filter(teacher_id=teacher.id).exists():
+                groups = teacher_groups.filter(teacher_id=teacher.prepod_id)
+                if not all_teachers_journal.filter(id_crm=teacher.prepod_id).exists():
+                    if groups.filter(teacher_id=teacher.prepod_id).exists():
                         new_teacher = self.user_object_create(teacher, groups)
                         new_teachers.append(new_teacher)
                 else:
-                    user_for_upgrade = all_teachers_journal.get(id_crm=teacher.id)
+                    user_for_upgrade = all_teachers_journal.get(id_crm=teacher.prepod_id)
                     if not self.users_are_equal(user_for_upgrade, teacher, groups):
                         upgraded_teacher = self.user_object_upgrade(teacher, user_for_upgrade, groups)
                         update_teachers.append(upgraded_teacher)
