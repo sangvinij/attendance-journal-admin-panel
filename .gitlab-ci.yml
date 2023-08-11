@@ -1,5 +1,0 @@
-
-include:
-  - project: 'bootcamp/iteen2/CRM-backend-pipeline'
-    ref: develop                                      # Git branch
-    file: 'CRM-backend-pipeline.yml'
