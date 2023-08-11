@@ -26,7 +26,7 @@ jobs:
             poetry-version: '1.5.1'
 
         - name: Install dev requirements
-          run: poetry install --dev
+          run: poetry install --only
 
         - name: Run black
           run: poetry run black . --check
