@@ -33,14 +33,14 @@ jobs:
 
       - name: run primary_db
         run: docker-compose up -d db
-        env:
+        with:
             POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
             POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
             POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
 
       - name: run mssql_db
         run: docker-compose up -d mssql_db
-        env:
+        with:
             ACCEPT_EULA: Y
             MSSQL_SA_PASSWORD: ${{ secrets.MSSQL_DATABASE_PASSWORD }}
             MSSQL_PID: Developer
@@ -50,7 +50,7 @@ jobs:
 
       - name: run webapp
         run: docker-compose up -d webapp
-        env:
+        with:
             PIP_VERSION: ${{ secrets.WEBAPP_PIP_VERSION || '23.1.2' }}
             POETRY_VERSION: ${{ secrets.WEBAPP_POETRY_VERSION || '1.5.1' }}
             PYTHON_VERSION: ${{ secrets.WEBAPP_PYTHON_VERSION || '3.11.3' }}
