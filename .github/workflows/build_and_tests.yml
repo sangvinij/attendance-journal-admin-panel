@@ -35,7 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
         - name: run primary_db
-          run:  docker-compose up db
+          run: docker-compose up db
           env:
             POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
             POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
