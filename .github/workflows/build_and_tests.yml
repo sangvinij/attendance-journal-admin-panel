@@ -67,7 +67,10 @@ jobs:
               docker-compose up redis
               docker-compose up webapp
             
-          
+        - name: Run tests
+          run: |
+              docker exec -it journal.webapp bash
+              pytest . -s
 
 
 
