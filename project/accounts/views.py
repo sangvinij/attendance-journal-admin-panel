@@ -247,4 +247,3 @@ class RefreshPoint(APIView):
         except ConnectionError:
             return JsonResponse({"last_sync": "null"})
         return JsonResponse({"last_sync": time_now})
-
