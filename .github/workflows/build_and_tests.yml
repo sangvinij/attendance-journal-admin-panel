@@ -25,14 +25,11 @@ jobs:
           with:
             poetry-version: '1.5.1'
 
-        - name: Install requirements
-          run: |
-              poetry install
-              poetry export -f requirements.txt --output requirements.txt
-              pip install -r requirements.txt
+        - name: Install dev requirements
+          run: poetry install --dev
 
         - name: Run black
-          run: black . --check
+          run: poetry run black . --check
 
         - name: Build project
           env:
@@ -69,8 +66,7 @@ jobs:
             
         - name: Run tests
           run: |
-              docker exec -it journal.webapp bash
-              pytest . -s
+              docker exec -it journal.webapp bash run-test.sh
 
 
 
