@@ -8,7 +8,7 @@ from djoser.serializers import UserCreateSerializer, UserSerializer
 
 from rest_framework import exceptions, serializers
 
-from .models import StudyField, User, Prepod
+from .models import Prepod, StudyField, User
 
 
 class CreateUserSerializer(UserCreateSerializer):

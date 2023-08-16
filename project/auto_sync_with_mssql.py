@@ -1,11 +1,16 @@
-import redis
-import requests
 import os
-import pytz
-from dotenv import find_dotenv, load_dotenv
 from datetime import datetime
+
 from apscheduler.schedulers.background import BlockingScheduler
+
+from dotenv import find_dotenv, load_dotenv
+
+import pytz
+
+import redis
 from redis.exceptions import ConnectionError
+
+import requests
 
 load_dotenv(find_dotenv())
 
@@ -16,8 +21,8 @@ def sync_scheduler():
     redis_db_url = os.getenv("REDIS_DSN")
     storage = redis.from_url(redis_db_url)
     webapp_host = os.getenv("WEBAPP_HOST")
-    django_superuser_username = os.getenv("DJANGO_SUPERUSER_USERNAME", "Iteen.Admin")
-    django_superuser_password = os.getenv("DJANGO_SUPERUSER_PASSWORD", "Admin1Admin1")
+    django_superuser_username = os.getenv("DJANGO_SUPERUSER_USERNAME")
+    django_superuser_password = os.getenv("DJANGO_SUPERUSER_PASSWORD")
     try:
         response = requests.post(
             f"{webapp_host}/auth/token/login/",
@@ -25,13 +30,14 @@ def sync_scheduler():
                 "username": django_superuser_username,
                 "password": django_superuser_password,
             },
+            timeout=5,
         )
     except requests.exceptions.ConnectionError:
         print("No connection to server")
         return None
     superuser_token = response.json()["auth_token"]
     try:
-        sync_resp = requests.get(f"{webapp_host}/api/refresh/", headers={"Authorization": f"Token {superuser_token}"})
+        requests.get(f"{webapp_host}/api/refresh/", headers={"Authorization": f"Token {superuser_token}"}, timeout=5)
     except requests.exceptions.ConnectionError:
         print("No connection to server")
         return None

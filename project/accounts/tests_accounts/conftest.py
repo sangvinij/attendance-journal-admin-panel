@@ -4,16 +4,17 @@ from dotenv import load_dotenv
 
 import pytest
 
+from sqlalchemy import Column, Integer, MetaData, String, Table, UnicodeText, create_engine
+
 from .api_requests import create_token, delete_token, delete_user, register_user
-from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String, UnicodeText
 
 load_dotenv()
 
 
 @pytest.fixture(scope="session")
 def superuser_credentials():
-    superuser_username = os.getenv("DJANGO_SUPERUSER_USERNAME", "Iteen.Admin")
-    superuser_password = os.getenv("DJANGO_SUPERUSER_PASSWORD", "Admin1Admin1")
+    superuser_username = os.getenv("DJANGO_SUPERUSER_USERNAME")
+    superuser_password = os.getenv("DJANGO_SUPERUSER_PASSWORD")
     superuser_token = create_token(username=superuser_username, password=superuser_password).json()["auth_token"]
 
     yield {
@@ -78,13 +79,16 @@ def mssql_fixture():
     password = os.environ.get("MSSQL_DATABASE_PASSWORD")
     driver = "ODBC Driver 18 for SQL Server"
 
-    connection_string = f"DRIVER={{{driver}}};SERVER={server},{port};DATABASE={database};UID={username};PWD={password};TrustServerCertificate=yes"
+    connection_string = (
+        f"DRIVER={{{driver}}};SERVER={server},{port};DATABASE={database};"
+        f"UID={username};PWD={password};TrustServerCertificate=yes"
+    )
     engine = create_engine(f"mssql+pyodbc:///?odbc_connect={connection_string}")
 
     metadata = MetaData()
     metadata.bind = engine
 
-    tbl_prepods = Table(
+    Table(
         "tblPrepods",
         metadata,
         Column("ID", Integer, primary_key=True),
@@ -93,7 +97,7 @@ def mssql_fixture():
         Column("Napravlenie", UnicodeText(100)),
     )
 
-    tbl_groups = Table(
+    Table(
         "tblGroups",
         metadata,
         Column("ID", Integer, primary_key=True),

@@ -1,0 +1,69 @@
+name: build_and_tests
+on:
+  pull_request:
+    branches:
+      - '*'
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3.3.0
+
+      - name: Setup Python
+        uses: actions/setup-python@v4.5.0
+
+        with:
+          python-version: "3.11.3"
+
+      - name: Setup Poetry
+        uses: Gr1N/setup-poetry@v8
+        with:
+          poetry-version: '1.5.1'
+
+      - name: Install requirements
+        run: poetry install
+
+      - name: Run black
+        run: poetry run black . --check
+
+      - name: Run Flake8
+        run: poetry run flake8 .
+
+      - name: build
+        env:
+            POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+            POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+            POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+            ACCEPT_EULA: Y
+            MSSQL_SA_PASSWORD: ${{ secrets.MSSQL_DATABASE_PASSWORD }}
+            MSSQL_PID: Developer
+            PIP_VERSION: ${{ secrets.WEBAPP_PIP_VERSION || '23.1.2' }}
+            POETRY_VERSION: ${{ secrets.WEBAPP_POETRY_VERSION || '1.5.1' }}
+            PYTHON_VERSION: ${{ secrets.WEBAPP_PYTHON_VERSION || '3.11.3' }}
+            VERSION: ${{ secrets.WEBAPP_VERSION || 'dev' }}
+            SECRET_KEY: ${{ secrets.SECRET_KEY }}
+            PRIMARY_DATABASE_URL: ${{ secrets.PRIMARY_DATABASE_URL }}
+            DEBUG_MODE: ${{ secrets.DEBUG_MODE }}
+            ALLOWED_HOSTS: ${{ secrets.ALLOWED_HOSTS }}
+            REDIS_DSN: ${{ secrets.REDIS_DSN }}
+            WEBAPP_HOST: ${{ secrets.WEBAPP_HOST }}
+            MSSQL_DATABASE_HOST: ${{ secrets.MSSQL_DATABASE_HOST }}
+            MSSQL_DATABASE_NAME: ${{ secrets.MSSQL_DATABASE_NAME }}
+            MSSQL_DATABASE_PASSWORD: ${{ secrets.MSSQL_DATABASE_PASSWORD }}
+            MSSQL_DATABASE_PORT: ${{ secrets.MSSQL_DATABASE_PORT }}
+            MSSQL_DATABASE_USERNAME: ${{ secrets.MSSQL_DATABASE_USERNAME }}
+            DJANGO_SUPERUSER_USERNAME: ${{ secrets.DJANGO_SUPERUSER_USERNAME }}
+            DJANGO_SUPERUSER_PASSWORD: ${{ secrets.DJANGO_SUPERUSER_USERNAME }}
+            HOST_FOR_TESTS: ${{ secrets.HOST_FOR_TESTS }}
+        run: docker-compose up -d
+            
+      - name: Run tests
+        run: docker exec journal.webapp bash run-test.sh
+
+      - name: stop services
+        run: docker-compose stop

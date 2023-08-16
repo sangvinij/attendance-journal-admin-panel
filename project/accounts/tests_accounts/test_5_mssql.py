@@ -1,5 +1,7 @@
 import os
+
 import django
+
 import requests
 
 from dotenv import load_dotenv
@@ -7,9 +9,9 @@ from dotenv import load_dotenv
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "project.settings")
 django.setup()
 
-from django.test import RequestFactory
-from accounts.views import RefreshPoint
 from accounts.models import Group, Prepod, User
+
+from django.test import RequestFactory
 
 load_dotenv()
 
@@ -26,7 +28,7 @@ class Names:
 
 
 def test_data_synchronization(mssql_fixture, superuser_credentials):
-    factory = RequestFactory()
+    RequestFactory()
     synchronization_url = f"{host}/api/refresh/"
 
     access_token = superuser_credentials["superuser_token"]
@@ -34,15 +36,15 @@ def test_data_synchronization(mssql_fixture, superuser_credentials):
     headers = {"Authorization": f"Token {access_token}"}
 
     valid_prepod = Prepod.objects.create(
-        id=1, fullname="Петров Петр Петрович", email="piotr.petrovich@gmail.com", direction="Робототехника"
+        prepod_id=1, fullname="Петров Петр Петрович", email="piotr.petrovich@gmail.com", direction="Робототехника"
     )
 
-    not_valid_prepod = Prepod.objects.create(
-        id=2, fullname="Невалидное_имя", email="piotr.petrovich@gmail.com", direction="Робототехника"
+    Prepod.objects.create(
+        prepod_id=2, fullname="Невалидное_имя", email="piotr.petrovich@gmail.com", direction="Робототехника"
     )
 
     group1 = Group.objects.create(
-        id=1,
+        group_id=1,
         study_groups="study_group1",
         course_id=1,
         teacher_fullname="Петров Петр Петрович",
@@ -51,8 +53,8 @@ def test_data_synchronization(mssql_fixture, superuser_credentials):
         direction="Робототехника",
     )
 
-    group2 = Group.objects.create(
-        id=2,
+    Group.objects.create(
+        group_id=2,
         study_groups="study_group2",
         course_id=1,
         teacher_fullname="Невалидное_имя",
@@ -61,7 +63,7 @@ def test_data_synchronization(mssql_fixture, superuser_credentials):
         direction="Робототехника",
     )
 
-    response = requests.get(synchronization_url, headers=headers)
+    response = requests.get(synchronization_url, headers=headers, timeout=5)
     assert response.status_code == 200
 
     prepods_count = Prepod.objects.count()
@@ -72,7 +74,7 @@ def test_data_synchronization(mssql_fixture, superuser_credentials):
     assert groups_count == 2
     assert teachers_count == 1
 
-    synced_user = User.objects.get(id_crm=valid_prepod.id)
+    synced_user = User.objects.get(id_crm=valid_prepod.prepod_id)
     assert synced_user.first_name == "Петр"
     assert synced_user.last_name == "Петров"
     assert synced_user.middle_name == "Петрович"
@@ -85,10 +87,10 @@ def test_data_synchronization(mssql_fixture, superuser_credentials):
     group1.study_groups = "another_study_group1"
     group1.save()
 
-    response = requests.get(synchronization_url, headers=headers)
+    response = requests.get(synchronization_url, headers=headers, timeout=5)
     assert response.status_code == 200
 
-    synced_user = User.objects.get(id_crm=valid_prepod.id)
+    synced_user = User.objects.get(id_crm=valid_prepod.prepod_id)
     assert synced_user.first_name == "Петр"
     assert synced_user.last_name == "Другой"
     assert synced_user.middle_name == "Петрович"

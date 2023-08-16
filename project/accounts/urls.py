@@ -4,7 +4,7 @@ from knox import views as knox_views
 
 from rest_framework.routers import DefaultRouter
 
-from .views import LoginView, StudyFieldViewSet, UserViewSet, MsSqlTableViewSet, RefreshPoint
+from .views import LoginView, MsSqlTableViewSet, RefreshPoint, StudyFieldViewSet, UserViewSet
 
 mssql_router = DefaultRouter()
 mssql_router.register(r"mssql", MsSqlTableViewSet)
